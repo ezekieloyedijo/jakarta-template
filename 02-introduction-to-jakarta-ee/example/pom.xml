@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  This app's Maven settings. It is tiny because everything shared
+  (Java version, Jakarta libraries, the Tomcat server) is inherited
+  from the PARENT pom at the course root: ../../pom.xml
+
+  Run:   mvn package cargo:run   then open  http://localhost:8080/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.school.jakarta</groupId>
+        <artifactId>course-parent</artifactId>
+        <version>1.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>topic02-example</artifactId>
+    <!-- war = "Web ARchive": the standard package format for a Java web app (topic 03) -->
+    <packaging>war</packaging>
+</project>

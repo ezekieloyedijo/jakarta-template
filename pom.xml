@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ============================================================
+  THE PARENT POM  (the "school rule book")
+  ============================================================
+  Every example/ and project/ folder in this course has its own tiny
+  pom.xml that says "my parent is this file". So all the shared settings
+  live HERE, once:
+    - which Java version we compile for
+    - which Jakarta libraries every web app gets (Servlet, JSP, EL, JSTL)
+    - the Tomcat server (via the Cargo plugin), so you can run ANY app with:  mvn package cargo:run
+
+  You normally never need to edit this file.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.school.jakarta</groupId>
+    <artifactId>course-parent</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>Jakarta EE Course (parent)</name>
+
+    <!-- Listing the modules lets you build EVERYTHING at once from this folder with:  mvn package -->
+    <modules>
+        <module>02-introduction-to-jakarta-ee/example</module>
+        <module>02-introduction-to-jakarta-ee/project</module>
+        <module>03-developing-and-deploying-a-web-application/example</module>
+        <module>03-developing-and-deploying-a-web-application/project</module>
+        <module>04-jakarta-servlets/example</module>
+        <module>04-jakarta-servlets/project</module>
+        <module>05-session-tracking/example</module>
+        <module>05-session-tracking/project</module>
+        <module>06-jakarta-server-pages/example</module>
+        <module>06-jakarta-server-pages/project</module>
+        <module>07-filters-annotation/example</module>
+        <module>07-filters-annotation/project</module>
+        <module>08-database-access-and-event-handling/example</module>
+        <module>08-database-access-and-event-handling/project</module>
+        <module>09-asynchronous-servlet-communication/example</module>
+        <module>09-asynchronous-servlet-communication/project</module>
+        <module>10-jsp-implicit-objects-and-standard-actions/example</module>
+        <module>10-jsp-implicit-objects-and-standard-actions/project</module>
+        <module>11-model-view-controller-architecture/example</module>
+        <module>11-model-view-controller-architecture/project</module>
+        <module>12-jsp-expression-language/example</module>
+        <module>12-jsp-expression-language/project</module>
+        <module>13-securing-java-web-applications/example</module>
+        <module>13-securing-java-web-applications/project</module>
+        <module>14-building-application-using-jsp-and-servlet/project</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <tomcat.version>10.1.34</tomcat.version>
+        <tomcat.port>8080</tomcat.port>
+        <cargo.version>1.10.16</cargo.version>
+    </properties>
+
+    <!-- Libraries EVERY web app in the course gets automatically -->
+    <dependencies>
+        <!-- Servlet API: "provided" = the server already has it at runtime, we only need it to compile -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSP API (Jakarta Server Pages) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>3.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- EL API (the ${...} Expression Language) -->
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>5.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSTL (the <c:forEach>, <c:if> tags). NOT provided by plain servers, so we ship it inside the app -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- the WAR file is named after the app, e.g. target/topic04-project.war -->
+        <finalName>${project.artifactId}</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!--
+              TOMCAT (via the Cargo plugin): Maven downloads a real Apache Tomcat 10.1
+              the first time, then starts it with your app inside. Nothing to install.
+
+              Run any app with:   mvn package cargo:run
+              Then open:          http://localhost:8080/
+              Stop it with:       Ctrl + C
+            -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>${cargo.version}</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat10x</containerId>
+                        <!-- the official Tomcat zip, fetched from Maven Central -->
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>${tomcat.version}</version>
+                        </artifactInstaller>
+                    </container>
+                    <configuration>
+                        <properties>
+                            <!-- change with:  mvn package cargo:run -Dtomcat.port=9090 -->
+                            <cargo.servlet.port>${tomcat.port}</cargo.servlet.port>
+                        </properties>
+                    </configuration>
+                    <deployables>
+                        <deployable>
+                            <properties>
+                                <!-- run the app at the root: http://localhost:8080/ -->
+                                <context>/</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

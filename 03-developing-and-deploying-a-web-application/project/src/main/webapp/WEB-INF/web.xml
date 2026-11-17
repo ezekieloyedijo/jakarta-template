@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MY PORTFOLIO: deployment descriptor.
+  Change the context-param values below to YOUR details, then restart the app.
+  Every page reads them, so you never hard-code your name in Java.
+-->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>My Portfolio</display-name>
+
+    <!-- ===== Settings (read with getServletContext().getInitParameter) ===== -->
+    <context-param>
+        <param-name>ownerName</param-name>
+        <param-value>Ada Okafor</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ownerTitle</param-name>
+        <param-value>Student Java Web Developer</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ownerEmail</param-name>
+        <param-value>ada@example.com</param-value>
+    </context-param>
+
+    <!-- ===== Friendly error pages ===== -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/errors/404.html</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/errors/500.html</location>
+    </error-page>
+</web-app>

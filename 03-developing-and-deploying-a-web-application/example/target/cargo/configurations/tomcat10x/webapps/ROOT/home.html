@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Topic 03 - Deployment Tour</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h1>Topic 03: The Deployment Tour</h1>
+
+<p>You are looking at <code>home.html</code>, not <code>index.html</code>.
+   Why? Because <code>WEB-INF/web.xml</code> lists <code>home.html</code> as the <b>welcome file</b>.</p>
+
+<table>
+    <tr><th>Click</th><th>What it proves</th></tr>
+    <tr><td><a href="classic">/classic</a></td>
+        <td>A servlet with <b>no annotation</b>. It is registered in <code>web.xml</code> with &lt;servlet&gt; + &lt;servlet-mapping&gt;</td></tr>
+    <tr><td><a href="modern">/modern</a></td>
+        <td>A servlet registered with the <b>@WebServlet</b> annotation. No XML needed</td></tr>
+    <tr><td><a href="settings">/settings</a></td>
+        <td>A servlet reading <b>context-param</b> settings from <code>web.xml</code></td></tr>
+    <tr><td><a href="WEB-INF/secret.html">/WEB-INF/secret.html</a></td>
+        <td>The file EXISTS, but <code>WEB-INF</code> is private, so you get a <b>404</b></td></tr>
+    <tr><td><a href="WEB-INF/web.xml">/WEB-INF/web.xml</a></td>
+        <td>The settings file is private too: <b>404</b></td></tr>
+    <tr><td><a href="no-such-page">/no-such-page</a></td>
+        <td>Our <b>custom 404 page</b> (configured in <code>web.xml</code>)</td></tr>
+    <tr><td><a href="boom">/boom</a></td>
+        <td>A servlet that crashes. You see our <b>custom 500 page</b>, and the details go to the <b>terminal log</b></td></tr>
+</table>
+
+<p>Now stop the server and run <code>mvn package</code>. Look in <code>target/</code> for <code>topic03-example.war</code>
+   and the unpacked folder <code>target/topic03-example/</code>. Compare it with the structure in the lesson.</p>
+</body>
+</html>

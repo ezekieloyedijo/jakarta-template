@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Web App - Jakarta edition</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h1>Welcome to my Mini Web App (Jakarta edition)</h1>
+<p>This is topic 01's MiniWebApp rebuilt with Jakarta EE.
+   This home page is a <b>static</b> file. No Java code was needed to serve it.</p>
+<ul>
+    <li><a href="time">What time is it?</a> (dynamic)</li>
+    <li><a href="nothing-here">A broken link</a> (the container gives the 404 for us)</li>
+</ul>
+<form action="greet" method="get">
+    <label>Your name: <input name="name" required></label>
+    <button type="submit">Greet me</button>
+</form>
+</body>
+</html>
