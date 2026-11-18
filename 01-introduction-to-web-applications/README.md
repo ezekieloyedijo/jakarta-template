@@ -64,3 +64,47 @@ Each step leads to the next one.
 
 > There's no Maven in this topic, only plain Java. `java SomeFile.java` compiles and runs a single file in one go (Java 11+).
 > Open <http://localhost:8080/> after starting either one. Stop with **Ctrl + C**.
+
+## Check your understanding: 10 basic questions
+
+Try to answer each question out loud or on paper **before** you open the answer.
+
+**1.** What is the difference between a **client** and a **server**?
+
+<details><summary>Answer</summary>The <b>client</b> (usually a web browser) <b>asks</b> for something. The <b>server</b> is a program on another computer that <b>answers</b>. Restaurant: the customer orders, the kitchen cooks and serves.</details>
+
+**2.** What does **HTTP** stand for, and what is it for?
+
+<details><summary>Answer</summary><b>HyperText Transfer Protocol</b>. It is the shared <b>language</b> (set of rules) that browsers and servers use to talk to each other.</details>
+
+**3.** Name the parts of this URL: `http://localhost:8080/greet?name=Ada`
+
+<details><summary>Answer</summary><code>http</code> = protocol, <code>localhost</code> = host (which computer), <code>8080</code> = port (which door on that computer), <code>/greet</code> = path (which thing), <code>?name=Ada</code> = query string (extra data as name=value).</details>
+
+**4.** What are the two halves of every HTTP conversation?
+
+<details><summary>Answer</summary>The <b>request</b> (client → server: "please give me /greet") and the <b>response</b> (server → client: a status code, headers, and the content).</details>
+
+**5.** What do the status codes **200**, **404**, and **500** mean?
+
+<details><summary>Answer</summary><b>200</b> = OK, here is what you asked for. <b>404</b> = Not Found, that address does not exist. <b>500</b> = Internal Server Error, the server's own code crashed.</details>
+
+**6.** What is the main difference between **GET** and **POST**?
+
+<details><summary>Answer</summary><b>GET</b> asks to <b>read</b> something and puts any data in the URL (visible, can be bookmarked). <b>POST</b> <b>sends</b> data to be processed (for example a form) and puts it in the request <b>body</b>, not the URL.</details>
+
+**7.** In an HTML form, what do the `action` and `method` attributes say?
+
+<details><summary>Answer</summary><code>action</code> = <b>where</b> to send the data (the URL). <code>method</code> = <b>how</b> to send it (<code>get</code> or <code>post</code>).</details>
+
+**8.** What is the difference between **static** and **dynamic** content?
+
+<details><summary>Answer</summary><b>Static</b> content is a fixed file sent the same way to everyone (for example <code>about.html</code>). <b>Dynamic</b> content is built fresh by a program for each request (for example "Hello Ada, the time is 10:42").</details>
+
+**9.** What is a **web application**?
+
+<details><summary>Answer</summary>A program that runs on a <b>server</b>, receives HTTP requests, and builds <b>dynamic</b> responses that people use through a browser. Examples: online banking, a school portal.</details>
+
+**10.** "HTTP is **stateless**." What does that mean?
+
+<details><summary>Answer</summary>The server <b>forgets you after every request</b>. Each request is treated as if it came from a stranger. (Topic 05, Session Tracking, solves this.)</details>
