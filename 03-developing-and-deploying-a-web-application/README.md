@@ -51,3 +51,47 @@ You should be able to:
 | [example/](example/) | A "tour" app: a servlet registered in `web.xml`, one registered by annotation, a custom welcome file, a hidden file inside `WEB-INF`, `context-param` settings, and custom 404/500 error pages | `cd example` then `mvn package cargo:run` |
 | [project/](project/) | **My Portfolio**: a small personal website with a contact form, error pages, and settings from `web.xml`, built into a WAR you can deploy anywhere | `cd project` then `mvn package cargo:run` |
 | [QUIZ.md](QUIZ.md) | Test yourself | Last |
+
+## Check your understanding: 10 basic questions
+
+Try to answer each question out loud or on paper **before** you open the answer.
+
+**1.** What is the difference between **developing** and **deploying** an app?
+
+<details><summary>Answer</summary><b>Developing</b> = writing and testing the code on your own computer. <b>Deploying</b> = putting the finished, packaged app onto a server so people can use it.</details>
+
+**2.** Which folder in a Java web app is **private**, and what does private mean?
+
+<details><summary>Answer</summary><code>WEB-INF</code>. The browser can <b>never</b> open a file inside it directly (it gets a 404). Only the server and your code can use those files.</details>
+
+**3.** In our Maven project, where do Java classes go, and where do HTML/CSS files go?
+
+<details><summary>Answer</summary>Java: <code>src/main/java</code>. HTML, CSS and JSP: <code>src/main/webapp</code>.</details>
+
+**4.** After building, where do the compiled `.class` files end up inside the app?
+
+<details><summary>Answer</summary>In <code>WEB-INF/classes</code>. Extra libraries (JAR files) go in <code>WEB-INF/lib</code>.</details>
+
+**5.** What is `web.xml`, and where does it live?
+
+<details><summary>Answer</summary>The <b>deployment descriptor</b>: the app's settings file (servlet mappings, welcome pages, error pages, context parameters, security). It lives at <code>WEB-INF/web.xml</code>.</details>
+
+**6.** Give one advantage of annotations (`@WebServlet`) and one advantage of `web.xml`.
+
+<details><summary>Answer</summary><b>Annotations</b>: short, and the setting sits right next to the code. <b>web.xml</b>: everything is in one place, and you can change settings <b>without changing Java code</b>.</details>
+
+**7.** What is a **WAR** file?
+
+<details><summary>Answer</summary>A <b>W</b>eb application <b>AR</b>chive: the whole app (classes, pages, <code>WEB-INF</code>) zipped into <b>one file</b> that any Jakarta server can deploy. Like a shipping box.</details>
+
+**8.** Which command builds the WAR, and which command builds it **and** runs it on Tomcat?
+
+<details><summary>Answer</summary><code>mvn package</code> builds <code>target/&lt;name&gt;.war</code>. <code>mvn package cargo:run</code> builds it and starts it on Tomcat.</details>
+
+**9.** What is the **context path**?
+
+<details><summary>Answer</summary>The part of the URL that chooses <b>which app</b> on the server. In <code>http://server/shop/cart</code>, <code>/shop</code> is the context path and <code>/cart</code> is the servlet path. Our apps are deployed at <code>/</code> (the root), so there is no extra part.</details>
+
+**10.** You changed a servlet, but the browser still shows the old page. Why, and what do you do?
+
+<details><summary>Answer</summary>Tomcat is still running the <b>old WAR</b>. Press <b>Ctrl + C</b>, then run <code>mvn package cargo:run</code> again to rebuild and redeploy.</details>

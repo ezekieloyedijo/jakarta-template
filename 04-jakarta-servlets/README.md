@@ -58,3 +58,47 @@ in a servlet's fields.
 | [example/](example/) | `/lifecycle` (watch init/service/destroy), `/register` (every kind of form input), `/config` (init params), and `/dispatch` (forward vs include vs redirect, side by side) | `cd example` then `mvn package cargo:run` |
 | [project/](project/) | **Simple Calculator**: form, validation, errors with proper status codes, configuration, and an app-wide counter shared by all users | `cd project` then `mvn package cargo:run` |
 | [QUIZ.md](QUIZ.md) | Test yourself | Last |
+
+## Check your understanding: 10 basic questions
+
+Try to answer each question out loud or on paper **before** you open the answer.
+
+**1.** What is a **servlet**?
+
+<details><summary>Answer</summary>A Java class (usually <code>extends HttpServlet</code>) that runs inside the container, <b>receives an HTTP request</b>, and <b>writes the HTTP response</b>.</details>
+
+**2.** Which class do we extend to write a web servlet, and which methods do we usually override?
+
+<details><summary>Answer</summary><code>HttpServlet</code>. We override <code>doGet</code> (for GET requests) and/or <code>doPost</code> (for POST requests).</details>
+
+**3.** Name the three life-cycle methods in order, and say how often each is called.
+
+<details><summary>Answer</summary><code>init()</code> once, when the servlet is created. <code>service()</code> (which calls <code>doGet</code>/<code>doPost</code>) <b>once per request</b>. <code>destroy()</code> once, when the app stops.</details>
+
+**4.** How many objects of one servlet class does the container usually create?
+
+<details><summary>Answer</summary><b>One.</b> All requests share it, each running on its own thread.</details>
+
+**5.** Why must you **not** store one user's data in a servlet's field (instance variable)?
+
+<details><summary>Answer</summary>Because the one servlet object is shared by <b>all users at the same time</b>. User B could see or overwrite user A's data. Use local variables inside <code>doGet</code>/<code>doPost</code> instead.</details>
+
+**6.** Which method reads the value of a form field called `email`?
+
+<details><summary>Answer</summary><code>request.getParameter("email")</code>. It returns a <code>String</code>, or <code>null</code> if the field was not sent.</details>
+
+**7.** Which two lines do you write before sending HTML from a servlet?
+
+<details><summary>Answer</summary><code>response.setContentType("text/html;charset=UTF-8");</code> and then <code>PrintWriter out = response.getWriter();</code>. Then you write the HTML with <code>out.println(...)</code>.</details>
+
+**8.** What is the difference between `forward` and `sendRedirect`?
+
+<details><summary>Answer</summary><b>forward</b> passes the <b>same</b> request to another resource on the server, so the address bar does not change. <b>sendRedirect</b> tells the browser to make a <b>new</b> request to a different URL, so the address bar changes.</details>
+
+**9.** What is the difference between `ServletConfig` and `ServletContext`?
+
+<details><summary>Answer</summary><code>ServletConfig</code> holds settings for <b>one servlet</b> (its init parameters). <code>ServletContext</code> is shared by the <b>whole app</b> (context parameters and app-wide attributes).</details>
+
+**10.** What is the **Post/Redirect/Get** pattern, and what problem does it solve?
+
+<details><summary>Answer</summary>After handling a POST, the servlet <b>redirects</b> to a GET page instead of showing the result directly. This stops the form from being <b>submitted twice</b> when the user presses refresh.</details>

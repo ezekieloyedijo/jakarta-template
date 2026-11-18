@@ -51,3 +51,47 @@ You should be able to explain:
 | [QUIZ.md](QUIZ.md) | Test yourself | Last |
 
 > ⚙️ From this topic on you need **Maven**. Read [SETUP.md](../SETUP.md) first if you haven't.
+
+## Check your understanding: 10 basic questions
+
+Try to answer each question out loud or on paper **before** you open the answer.
+
+**1.** What is **Jakarta EE**?
+
+<details><summary>Answer</summary>A <b>set of specifications</b> (agreed rules) for building Java server and web applications. It is not one program you download. Servers such as Tomcat <i>follow</i> those rules.</details>
+
+**2.** What is the difference between a **specification** and an **implementation**?
+
+<details><summary>Answer</summary>A <b>specification</b> is the written rule ("a servlet must have a <code>doGet</code> method..."). An <b>implementation</b> is a real product that follows the rule (for example Tomcat). Like the USB-C standard (spec) and the real cables many companies make (implementations).</details>
+
+**3.** What is a **container**?
+
+<details><summary>Answer</summary>The server program (for us, <b>Tomcat</b>) that <b>runs your code</b> and does the boring work for you: listening on the network, reading HTTP, creating your servlet objects, managing threads, and sending the response.</details>
+
+**4.** Name three jobs the container does so that you don't have to.
+
+<details><summary>Answer</summary>Any three of: listens on a port, reads and parses the HTTP request, finds the right servlet for the URL, creates and destroys servlet objects, runs many requests at once with threads, builds and sends the HTTP response, manages sessions and security.</details>
+
+**5.** What does "**Don't call us, we'll call you**" mean in Jakarta EE?
+
+<details><summary>Answer</summary>You never call your own <code>doGet</code> method and you never write a <code>main</code> method. <b>The container calls your code</b> when a matching request arrives.</details>
+
+**6.** Name three specifications inside Jakarta EE that this course uses.
+
+<details><summary>Answer</summary>Any three of: <b>Servlet</b>, <b>Jakarta Server Pages (JSP)</b>, <b>Expression Language (EL)</b>, <b>JSTL</b> (Standard Tag Library), <b>Security</b>.</details>
+
+**7.** Why do new tutorials use `jakarta.servlet` while old ones use `javax.servlet`?
+
+<details><summary>Answer</summary>Oracle handed Java EE to the Eclipse Foundation, and it was renamed <b>Jakarta EE</b>. From Jakarta EE 9 onward every package was renamed from <code>javax.*</code> to <code>jakarta.*</code>. Old <code>javax</code> code runs on Tomcat 9; our <code>jakarta</code> code needs Tomcat 10 or newer.</details>
+
+**8.** What is the difference between **Tomcat** and a "full" server like **GlassFish** or **WildFly**?
+
+<details><summary>Answer</summary>Tomcat is a <b>web container</b>: it implements only the web specs (Servlet, JSP, EL...). Full servers implement <b>all</b> of Jakarta EE (also things like EJB and messaging). Tomcat is smaller and simpler, and it is all we need.</details>
+
+**9.** In our `pom.xml`, the Jakarta libraries have `<scope>provided</scope>`. What does that mean?
+
+<details><summary>Answer</summary>"We need these to <b>compile</b>, but don't pack them into the WAR, because the <b>server (Tomcat) already provides them</b> when the app runs."</details>
+
+**10.** What does the annotation `@WebServlet("/hello")` do?
+
+<details><summary>Answer</summary>It tells the container: "when a request arrives for the URL <code>/hello</code>, send it to <b>this servlet class</b>."</details>
