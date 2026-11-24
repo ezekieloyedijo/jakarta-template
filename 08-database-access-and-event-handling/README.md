@@ -44,12 +44,130 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
-| [example/](example/) | Small demos: connect and query, PreparedStatement, a startup listener, a session counter |
-| [project/](project/) | **Guestbook**: visitors leave messages that are saved in the database and survive a restart |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
+| [example/](example/) | Small demos: connect, SELECT and INSERT with a PreparedStatement, a startup listener, a session counter |
+| [project/](project/) | **School Library**: add, list, edit, and delete books saved in an H2 database file, so they survive a restart (CRUD with SQL) |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is a **School Library**. Books are saved in a real **database** (H2, in a file in your home folder),
+so they are still there after Tomcat restarts. Each CRUD action is one SQL command:
+
+| Feature | The user... | Request | Servlet | SQL (in `BookDao`) |
+|---|---|---|---|---|
+| **Read** | opens the list | `GET /books` | `BookListServlet` | `SELECT * FROM book ORDER BY title` |
+| **Create** | submits the Add form | `POST /books/add` | `AddBookServlet` | `INSERT INTO book ... VALUES (?, ?, ?, ?)` |
+| **Update** | submits the Edit form | `POST /books/edit` | `EditBookServlet` | `UPDATE book SET ... WHERE id = ?` |
+| **Delete** | clicks Delete | `POST /books/delete` | `DeleteBookServlet` | `DELETE FROM book WHERE id = ?` |
+| *(app starts)* | | | `DatabaseListener` | `CREATE TABLE IF NOT EXISTS book (...)` |
+| *(session starts/ends)* | | | `ReadersOnlineListener` | |
+
+🗄️ The records office: servlets are the **front desk**, `BookDao` is the **one clerk** allowed to open the filing
+cabinet, and `DatabaseListener` is the **caretaker** who sets up the cabinet before the office opens.
+
+### The files, and whether each is needed
+
+| File | Needed? | Why |
+|---|---|---|
+| `pom.xml` (with the **H2** dependency) | ✅ **Yes** | Without H2 there is no database driver: the app fails to start |
+| `WEB-INF/web.xml` | ✅ **Yes** | Holds the database address (`<context-param>` `dbUrl`) and makes `/` open `/books` |
+| `Book.java` | ✅ **Yes** | One row of the table as a Java object |
+| `BookDao.java` | ✅ **Yes** | **All the SQL**: create table, count, insert, findAll, findById, update, delete |
+| `BookForm.java` | ✅ **Yes** | The typed values and the rules that check them |
+| `DatabaseListener.java` | ✅ **Yes** | Creates the table, adds sample books, and shares the DAO when the app starts |
+| `ReadersOnlineListener.java` | ⚪ Optional | Counts open sessions for the footer. Shows the second kind of listener |
+| `Page.java` | ✅ **Yes** | Layout, book table, book form, escaping |
+| The 4 servlets | ✅ **Yes** | One per CRUD job. **No SQL inside them** |
+| `css/style.css` | ⚪ Optional, but recommended | The look |
+| `index.html` | ❌ **Not used** | The welcome file is the `books` servlet |
+
+### Step 1: `pom.xml`
+
+Copy it from the template, set `<artifactId>topic08-project</artifactId>`, and add the H2 dependency
+(`com.h2database:h2:2.3.232`) inside `<dependencies>`.
+
+### Step 2: `web.xml`
+
+- `<context-param>` **`dbUrl`** = `jdbc:h2:~/jakarta-course-data/library` (the file `C:\Users\<you>\jakarta-course-data\library.mv.db`).
+- `<welcome-file>books</welcome-file>`, so `/` opens the list.
+
+### Step 3: `Book.java`
+
+`final` fields `id`, `title`, `author`, `year`, `copies`, with getters. One `Book` = one row.
+
+### Step 4: `BookDao.java`, all the SQL
+
+It stores the URL and has a private `connect()` (`DriverManager.getConnection(url, "sa", "")`).
+**Every method uses try-with-resources and `?` marks.**
+
+| Method | SQL | Returns |
+|---|---|---|
+| `createTableIfMissing()` | `CREATE TABLE IF NOT EXISTS book (id INT AUTO_INCREMENT PRIMARY KEY, title, author, published, copies)` | nothing |
+| `count()` | `SELECT COUNT(*) FROM book` | the number of rows |
+| `insert(title, author, year, copies)` | `INSERT ... VALUES (?, ?, ?, ?)` with `RETURN_GENERATED_KEYS` | the new id |
+| `findAll()` | `SELECT * FROM book ORDER BY title` | a `List<Book>` (loop with `while (rs.next())`) |
+| `findById(id)` | `SELECT * FROM book WHERE id = ?` | the `Book`, or `null` |
+| `update(id, ...)` | `UPDATE book SET title = ?, ... WHERE id = ?` | `true` if 1 row changed |
+| `delete(id)` | `DELETE FROM book WHERE id = ?` | `true` if 1 row was deleted |
+| `static from(app)` | | the DAO saved in the `ServletContext` |
+
+A private `toBook(rs)` turns the current row into a `Book`. Every `SQLException` becomes a `DataException`
+(unchecked), so servlets need no try/catch and a database failure shows a 500 page.
+
+The year column is called `published` because `YEAR` is a reserved word in H2.
+
+### Step 5: `DatabaseListener.java` (`@WebListener`)
+
+`contextInitialized`:
+1. Read `dbUrl` with `app.getInitParameter("dbUrl")`.
+2. `Class.forName("org.h2.Driver")`.
+3. `new BookDao(url)`, `createTableIfMissing()`, and if `count() == 0`, insert 3 sample books.
+4. `app.setAttribute("bookDao", dao)`.
+
+`contextDestroyed`: unregister the driver this app loaded (so Tomcat can unload the app cleanly).
+
+✅ **Check:** start the app. The terminal shows `[DB] Library ready at jdbc:h2:~/... with 3 books`, and the file
+`library.mv.db` appears in your home folder.
+
+### Step 6: `BookForm.java`
+
+Like topic 04's `StudentForm`: `empty()`, `of(book)`, `read(request)` (trimmed, never null), and `validate()`:
+title required (max 100), author required (max 60), year a whole number from 1450 to this year, copies 0–999.
+Plus `yearAsNumber()`, `copiesAsNumber()`, and `static toNumber(text)`.
+
+### Step 7: `ReadersOnlineListener.java` (`@WebListener`)
+
+An `HttpSessionListener` with a `static AtomicInteger`: `+1` in `sessionCreated`, `−1` in `sessionDestroyed`.
+
+### Step 8: `Page.java`
+
+`page(...)` calls `request.getSession()` (so each visitor is counted) and shows "Readers online: N" in the footer.
+`table(...)` shows the books with a red "none left" badge when `copies` is 0. `form(...)` is the Add/Edit form.
+
+### Step 9: `BookListServlet` (`/books`), Read
+
+`BookDao.from(getServletContext()).findAll()`, then the table, the count, and the fixed `?msg=` message.
+
+✅ **Check:** <http://localhost:8080/> shows the 3 sample books, sorted by title.
+
+### Step 10: `AddBookServlet` (`/books/add`), Create
+
+`doGet`: `BookForm.empty()`. `doPost`: `setCharacterEncoding("UTF-8")`, read, validate (400 + form), `insert(...)`,
+redirect with `msg=added`.
+
+### Step 11: `EditBookServlet` (`/books/edit`), Update
+
+A private `find(...)` sends 400 or 404. `doGet` shows `BookForm.of(book)`; `doPost` validates and calls `update(...)`.
+
+### Step 12: `DeleteBookServlet` (`/books/delete`), Delete
+
+`doPost` only: 400 / 404, `delete(id)`, redirect with `msg=deleted`.
+
+✅ **Final check:** add a book, **stop Tomcat, start it again**: the book is still there. That is the whole point of
+this topic. To start over with only the sample books, stop Tomcat and delete `library.mv.db`.
 
 ## Check your understanding: 10 basic questions
 

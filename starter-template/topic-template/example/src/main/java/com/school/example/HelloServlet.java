@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,7 @@ import java.io.IOException;
  * Visit http://localhost:8080/hello
  * Replace it, or keep it and add your own servlets next to it.
  */
-@WebServlet("/hello")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/hello"
 public class HelloServlet extends HttpServlet {
 
     @Override

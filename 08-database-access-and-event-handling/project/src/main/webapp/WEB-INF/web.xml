@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>School Library</display-name>
+
+    <!--
+      WHERE THE DATABASE IS. DatabaseListener reads this when the app starts.
+      "~" = your home folder, so the file is  C:\Users\<you>\jakarta-course-data\library.mv.db
+      It is outside the project, so "mvn clean" does not delete your books.
+      To start again with only the 3 sample books: stop Tomcat and delete that file.
+    -->
+    <context-param>
+        <param-name>dbUrl</param-name>
+        <param-value>jdbc:h2:~/jakarta-course-data/library</param-value>
+    </context-param>
+
+    <!-- http://localhost:8080/ goes straight to the list of books -->
+    <welcome-file-list>
+        <welcome-file>books</welcome-file>
+    </welcome-file-list>
+</web-app>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notice Board</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <a class="brand" href="./">📌 Notice Board</a>
+    <nav><a href="login">Log in</a></nav>
+</header>
+<main>
+    <h1>The staff and prefects' notice board</h1>
+    <p>This page is public. The notices are for members only.</p>
+
+    <div class="tiles">
+        <a class="tile" href="members/notices"><b>📋 See the notices</b><span>You'll be asked to log in first</span></a>
+        <a class="tile" href="login"><b>🔑 Log in</b><span>For teachers and prefects</span></a>
+    </div>
+
+    <p class="note">Every page under <code>/members/</code> is guarded by <b>one filter</b>, <code>AuthFilter</code>.
+        None of the notice servlets checks the login itself.</p>
+</main>
+</body>
+</html>

@@ -1,6 +1,5 @@
 package com.school.project;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +9,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 /** DYNAMIC page: the time is calculated fresh for every request. */
-@WebServlet("/time")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/time"
 public class TimeServlet extends HttpServlet {
 
     @Override

@@ -1,7 +1,6 @@
 package com.school.example;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +14,7 @@ import java.util.Collections;
  * Visit http://localhost:8080/container-info and REFRESH several times:
  * the thread name changes, because the container uses different worker threads ("waiters").
  */
-@WebServlet("/container-info")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/container-info"
 public class ContainerInfoServlet extends HttpServlet {
 
     @Override

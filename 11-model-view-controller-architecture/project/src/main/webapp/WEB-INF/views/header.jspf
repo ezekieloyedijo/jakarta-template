@@ -1,0 +1,19 @@
+<%-- The top of every view. The view must create the variable "title" first. --%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= Html.escape(title) %> | Student List</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <a class="brand" href="students">🎓 Student List</a>
+    <nav>
+        <a href="students">All students</a>
+        <a href="students?action=new">Add student</a>
+    </nav>
+</header>
+<main>
+    <h1><%= Html.escape(title) %></h1>

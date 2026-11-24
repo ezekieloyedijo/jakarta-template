@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /** The destination of the forward and of the redirect. It reports what it can "see". */
-@WebServlet("/target")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/target"
 public class DispatchTargetServlet extends HttpServlet {
 
     @Override

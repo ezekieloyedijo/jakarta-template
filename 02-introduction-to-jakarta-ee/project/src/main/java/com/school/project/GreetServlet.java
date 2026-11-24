@@ -1,6 +1,5 @@
 package com.school.project;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +12,7 @@ import java.io.IOException;
  * Compare with MiniWebApp.greet() in topic 01: no manual query-string decoding,
  * no sendResponseHeaders, no path checking. The container did it.
  */
-@WebServlet("/greet")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/greet"
 public class GreetServlet extends HttpServlet {
 
     @Override

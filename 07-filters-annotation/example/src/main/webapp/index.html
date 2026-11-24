@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Filter demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">🛡️ Filter demos</a></header>
+<main>
+    <h1>Filters: the guards at the door</h1>
+    <p>Keep the terminal where Tomcat runs open: most filters write their messages there.</p>
+    <ul class="demos">
+        <li><a href="hello">1. A normal servlet</a>: <code>LogFilter</code> and <code>TimingFilter</code> run around it</li>
+        <li><a href="slow">2. A slow servlet</a>: <code>TimingFilter</code> measures it (before and after)</li>
+        <li><a href="secret/vault">3. Blocked!</a>: <code>SecretKeyFilter</code> stops requests without the key</li>
+        <li><a href="secret/vault?key=open-sesame">4. Let through</a>: the same URL with the right key</li>
+        <li><a href="chain">5. The filter chain</a>: two filters, in the order set by <code>web.xml</code></li>
+    </ul>
+    <p class="note">This page is a plain HTML file, but <code>LogFilter</code> (<code>/*</code>) still logged it.
+        Filters see <b>every</b> request that matches their pattern, even for HTML and CSS files.</p>
+</main>
+</body>
+</html>

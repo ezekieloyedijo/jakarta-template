@@ -77,8 +77,8 @@ Never put `.java` files in `webapp/`.
 
 ## Step 4: The deployment descriptor `web.xml`
 
-`WEB-INF/web.xml` is the app's **instruction sheet for the container**. It's optional since Servlet 3.0
-(annotations can do most things), but it's still used for app-wide settings. Its skeleton:
+`WEB-INF/web.xml` is the app's **instruction sheet for the container**. Tomcat reads it when the app starts,
+and it is the place where **every servlet is registered** and every app-wide setting is written. Its skeleton:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -144,18 +144,28 @@ If a customer asks for a product we don't have, show the 'Sorry' sign (404 page)
 
 ---
 
-## Step 5: Annotations vs `web.xml`
+## Step 5: How the container finds your servlets (the rules of registration)
 
-You've already used an **annotation**: `@WebServlet("/hello")`. Both ways register a servlet:
+A servlet is just a Java class. Tomcat does **not** go looking through your classes. It only runs a servlet
+that is **registered** in `web.xml` with the two entries from Step 4 (b). The rules:
 
-| | Annotation `@WebServlet("/x")` | `web.xml` `<servlet>` + `<servlet-mapping>` |
+| Rule | Example | If you break it |
 |---|---|---|
-| Where | On the Java class itself | In one central XML file |
-| Pros | Short. Address sits right next to the code | All settings in **one place**. Change a URL **without recompiling** |
-| Best for | Servlets, filters, listeners (day-to-day code) | App-wide settings: welcome files, error pages, context params, security |
+| `<servlet-name>` must be **identical** in `<servlet>` and `<servlet-mapping>`. It's what joins them | `classic` and `classic` | The app **fails to start** (the log names the unknown servlet) |
+| `<servlet-class>` is the **full** class name: package + class | `com.school.example.ClassicServlet` | The app fails to start, or gives **500**: `ClassNotFoundException` |
+| `<url-pattern>` starts with `/` (exact, like `/about`, or prefix, like `/shop/*`), or is `*.ext`, or is **empty** (the app's root) | `/classic` | The app fails to start: "Invalid url-pattern" |
+| One servlet can answer at **several** URLs: add more `<url-pattern>`s | `/students` and `/pupils` | |
+| A class with **no** mapping is never called | | Its URL gives **404** |
 
-**If both say something about the same servlet, `web.xml` wins.** Most modern projects use annotations for servlets
-and `web.xml` for app-wide settings, and that's what this course does.
+🏪 `web.xml` is the **mall directory board**. A shop that's not on the board still exists, but no customer can find it.
+
+Why learn it this way first? Because `web.xml` shows you, in one file, **everything** the container knows about your app:
+which servlets exist, at which URLs, with which settings. Topics 02 to 04 register every servlet like this.
+
+> 💡 **Coming in topic 05: the shortcut.** Writing `@WebServlet("/classic")` on top of the class replaces
+> the two entries above. It's shorter, but it hides the registration inside the Java code.
+> You'll understand exactly what it does, because it does exactly what you've been writing in `web.xml`.
+> (If both are used for the same servlet, `web.xml` wins.)
 
 ---
 
@@ -241,7 +251,7 @@ When an app is deployed, the container:
 
 1. **Unpacks** the WAR (if needed)
 2. **Reads `WEB-INF/web.xml`**
-3. **Scans `WEB-INF/classes` and `WEB-INF/lib`** for annotations (`@WebServlet`, `@WebFilter`, `@WebListener`)
+3. **Scans `WEB-INF/classes` and `WEB-INF/lib`** for annotations (`@WebServlet` and friends, which you'll use from topic 05)
 4. Builds its **map of URLs → servlets**
 5. Makes the app **available** at its context path
 

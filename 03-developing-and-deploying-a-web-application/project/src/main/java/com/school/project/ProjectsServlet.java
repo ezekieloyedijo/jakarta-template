@@ -1,6 +1,5 @@
 package com.school.project;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/projects")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/projects"
 public class ProjectsServlet extends HttpServlet {
 
     /** A tiny "record" to hold one project. (Plain Java 17 feature.) */

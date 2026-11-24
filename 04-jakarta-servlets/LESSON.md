@@ -18,7 +18,6 @@
 > The container gives it a **request** object (what the user sent) and a **response** object (where to write the answer).
 
 ```java
-@WebServlet("/hello")                              // the desk sign: "I handle /hello"
 public class HelloServlet extends HttpServlet {    // "I am an HTTP servlet"
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -27,6 +26,20 @@ public class HelloServlet extends HttpServlet {    // "I am an HTTP servlet"
     }
 }
 ```
+
+```xml
+<!-- WEB-INF/web.xml: the desk sign, "this desk handles /hello" -->
+<servlet>
+    <servlet-name>hello</servlet-name>
+    <servlet-class>com.school.example.HelloServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>hello</servlet-name>
+    <url-pattern>/hello</url-pattern>
+</servlet-mapping>
+```
+
+Every servlet in this topic is registered in `web.xml` like this (topic 03, Step 5).
 
 The name means "a small piece of a **server**", the way an *applet* was a small application.
 
@@ -70,8 +83,8 @@ The **container**, not you, controls when a servlet is born, works, and dies:
    │ object      │   │ (setup)      │   │ (many times, in parallel)  │   │ (cleanup)    │
    └─────────────┘   └──────────────┘   └────────────────────────────┘   └──────────────┘
    on first request                                                       when app stops /
-   (or at startup if                                                      is redeployed
-    loadOnStartup = 1)
+   (or at startup with                                                    is redeployed
+    <load-on-startup>)
 ```
 
 | Method | Called | Use it to | 🏦 Bank |
@@ -81,13 +94,27 @@ The **container**, not you, controls when a servlet is born, works, and dies:
 | `destroy()` | **Once**, at shutdown | Clean up: close resources | Close the desk at night, lock the drawer |
 
 ```java
-@WebServlet(urlPatterns = "/lifecycle", loadOnStartup = 1)  // 1 = create me at app start, not on first visit
 public class LifecycleServlet extends HttpServlet {
     @Override public void init()    { System.out.println("init: desk opened"); }
     @Override protected void doGet(...) { System.out.println("doGet: serving a customer"); }
     @Override public void destroy() { System.out.println("destroy: desk closed"); }
 }
 ```
+
+```xml
+<servlet>
+    <servlet-name>lifecycle</servlet-name>
+    <servlet-class>com.school.example.LifecycleServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>   <!-- create me when the app STARTS, not on the first visit -->
+</servlet>
+<servlet-mapping>
+    <servlet-name>lifecycle</servlet-name>
+    <url-pattern>/lifecycle</url-pattern>
+</servlet-mapping>
+```
+
+Use `<load-on-startup>` when `init()` prepares something **other servlets need** before any request arrives.
+(The number sets the order when several servlets have it: lower numbers start first.)
 
 ▶️ Run the example, watch the **terminal**, open `/lifecycle` several times, then press **Ctrl+C**:
 you'll see `init` once, `doGet` many times, and `destroy` once.
@@ -135,7 +162,7 @@ Each customer should write on **their own slip** (local variable).
 
 ## Step 5: URL mapping patterns
 
-`@WebServlet` accepts different kinds of patterns:
+The `<url-pattern>` in a `<servlet-mapping>` can be one of these kinds:
 
 | Pattern | Type | Matches | Example use |
 |---|---|---|---|
@@ -145,10 +172,14 @@ Each customer should write on **their own slip** (local variable).
 | `/` | **Default** | anything nothing else matched | Replace the default file server (rare) |
 | `""` (empty) | **Context root** | exactly the app's root `/` | A home-page servlet |
 
-You can give several: `@WebServlet({"/home", "/index"})`, or the long form:
+One servlet can answer at several URLs: give its mapping more than one `<url-pattern>`:
 
-```java
-@WebServlet(name = "calc", urlPatterns = {"/calculator", "/calc"}, loadOnStartup = 1)
+```xml
+<servlet-mapping>
+    <servlet-name>students</servlet-name>
+    <url-pattern>/students</url-pattern>
+    <url-pattern>/pupils</url-pattern>
+</servlet-mapping>
 ```
 
 For path patterns, `request.getPathInfo()` gives the extra part. For `/products/12` it returns `"/12"`.
@@ -233,14 +264,28 @@ protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws I
 | | **`ServletConfig`** | **`ServletContext`** |
 |---|---|---|
 | Belongs to | **One** servlet | The **whole app** (all servlets) |
-| Settings | `@WebInitParam` or `<init-param>` in web.xml | `<context-param>` in web.xml (topic 03) |
+| Settings | `<init-param>` inside that servlet's `<servlet>` in web.xml | `<context-param>` in web.xml (topic 03) |
 | Read with | `getInitParameter("x")` (inside the servlet) | `getServletContext().getInitParameter("x")` |
 | Can also store objects? | No | **Yes**: `setAttribute` / `getAttribute`, shared by everyone |
 | 🏦 Bank | A note taped to **one desk** ("this desk: max withdrawal ₦50,000") | The **branch notice board** everyone reads |
 
+```xml
+<context-param>                         <!-- for the WHOLE app -->
+    <param-name>schoolName</param-name>
+    <param-value>Bright Future Academy</param-value>
+</context-param>
+
+<servlet>
+    <servlet-name>config</servlet-name>
+    <servlet-class>com.school.example.ConfigServlet</servlet-class>
+    <init-param>                        <!-- for THIS servlet only -->
+        <param-name>greeting</param-name>
+        <param-value>Welcome to Desk 3</param-value>
+    </init-param>
+</servlet>
+```
+
 ```java
-@WebServlet(urlPatterns = "/config",
-        initParams = { @WebInitParam(name = "greeting", value = "Welcome to Desk 3") })
 public class ConfigServlet extends HttpServlet {
     protected void doGet(...) {
         String greeting = getInitParameter("greeting");                       // this servlet only
@@ -312,7 +357,14 @@ cd 04-jakarta-servlets/project
 mvn package cargo:run
 ```
 
-Open <http://localhost:8080/calculator>. Try good numbers, letters instead of numbers, empty boxes, and dividing by zero.
-Open **F12 → Network** to see the status codes (200 vs 400).
+It's a **School Management** app that uses every step of this lesson. Open <http://localhost:8080/> and:
+
+- **add** a student, then press **F5** on the list: they are **not** added twice (Post/Redirect/Get, Step 11);
+- try to add one with an empty name or an age of `abc`: the form comes back with your values and the errors (status 400, Step 8);
+- **edit**, **delete**, and **search** for students;
+- open <http://localhost:8080/edit-student?id=99> (404) and <http://localhost:8080/delete-student> in the address bar (405, because delete only has `doPost`).
+
+Open **F12 → Network** to see the status codes (200, 302, 400, 404, 405).
+The [README](README.md#how-to-build-the-project-step-by-step) shows how to build it, one class at a time.
 
 Then go to **[QUIZ.md](QUIZ.md)**.

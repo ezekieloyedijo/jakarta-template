@@ -1,0 +1,30 @@
+<%-- The Add / Edit form, shared by add.jsp and edit.jsp.
+     Before including it, the page must create these variables:
+       String action        where the form is sent ("add.jsp" or "edit.jsp")
+       Integer id           the subject's id when editing, or null when adding
+       String name, score   the values to show in the boxes
+       List<String> errors  the problems to show (empty list = none)
+       String button        the text on the button --%>
+<% if (!errors.isEmpty()) { %>
+    <div class="msg error"><b>Please fix the following:</b>
+        <ul>
+            <% for (String e : errors) { %>
+                <li><%= GradeBook.escape(e) %></li>
+            <% } %>
+        </ul>
+    </div>
+<% } %>
+
+<form class="card" action="<%= action %>" method="post">
+    <% if (id != null) { %>
+        <input type="hidden" name="id" value="<%= id %>">
+    <% } %>
+    <label>Subject
+        <input name="name" value="<%= GradeBook.escape(name) %>" maxlength="40" required></label>
+    <label>Score (0 to 100)
+        <input name="score" type="number" min="0" max="100" value="<%= GradeBook.escape(score) %>" required></label>
+    <div class="buttons">
+        <button class="btn" type="submit"><%= button %></button>
+        <a class="btn secondary" href="index.jsp">Cancel</a>
+    </div>
+</form>

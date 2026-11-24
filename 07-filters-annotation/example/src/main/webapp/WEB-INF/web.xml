@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Most filters and servlets in this app use annotations (@WebFilter, @WebServlet).
+  The two below are written HERE because only web.xml can set the ORDER of filters:
+  the <filter-mapping> written first runs first.
+-->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>Topic 07: Filter demos</display-name>
+
+    <filter>
+        <filter-name>first</filter-name>
+        <filter-class>com.school.example.TrailFilter</filter-class>
+        <init-param><param-name>label</param-name><param-value>first</param-value></init-param>
+    </filter>
+    <filter>
+        <filter-name>second</filter-name>
+        <filter-class>com.school.example.TrailFilter</filter-class>
+        <init-param><param-name>label</param-name><param-value>second</param-value></init-param>
+    </filter>
+
+    <!-- ORDER: "first" runs before "second" because its mapping comes first -->
+    <filter-mapping>
+        <filter-name>first</filter-name>
+        <url-pattern>/chain</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>second</filter-name>
+        <url-pattern>/chain</url-pattern>
+    </filter-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

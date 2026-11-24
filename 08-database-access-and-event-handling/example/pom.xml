@@ -21,4 +21,14 @@
     <artifactId>topic08-example</artifactId>
     <!-- war = "Web ARchive": the standard package format for a Java web app (topic 03) -->
     <packaging>war</packaging>
+
+    <dependencies>
+        <!-- H2: a small database written in Java. It is shipped inside the WAR (WEB-INF/lib),
+             so there is nothing to install. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.3.232</version>
+        </dependency>
+    </dependencies>
 </project>

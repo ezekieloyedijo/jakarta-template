@@ -1,0 +1,19 @@
+<%-- The top of every view. The view sets "title" first with <c:set>. No Java at all. --%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><c:out value="${title}"/> | Student List</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+</head>
+<body>
+<header>
+    <a class="brand" href="${pageContext.request.contextPath}/students">🎓 Student List v2</a>
+    <nav>
+        <a href="${pageContext.request.contextPath}/students">All students</a>
+        <a href="${pageContext.request.contextPath}/students?action=new">Add student</a>
+    </nav>
+</header>
+<main>
+    <h1><c:out value="${title}"/></h1>

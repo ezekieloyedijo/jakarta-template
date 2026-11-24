@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MVC demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">🧩 MVC demos</a></header>
+<main>
+    <h1>The same converter, built two ways</h1>
+    <div class="tiles">
+        <a class="tile" href="no-mvc.jsp?celsius=31"><b>1. Without MVC</b><span>one JSP does every job (Model 1)</span></a>
+        <a class="tile" href="convert?celsius=31"><b>2. With MVC</b><span>Model + View + Controller (Model 2)</span></a>
+    </div>
+    <p>Both pages look and work the same. Open the source files side by side to see the difference:</p>
+    <ul class="demos">
+        <li><code>webapp/no-mvc.jsp</code>: reading, checking, maths, and HTML all in one file</li>
+        <li><code>Temperature.java</code> (Model), <code>WEB-INF/views/convert.jsp</code> (View),
+            <code>ConvertController.java</code> (Controller)</li>
+    </ul>
+</main>
+</body>
+</html>

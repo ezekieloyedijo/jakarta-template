@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Topic 04 examples: every servlet is registered here.
+    <servlet>         = WHO   (nickname + Java class, plus optional settings)
+    <servlet-mapping> = WHERE (which URL goes to that nickname)
+-->
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
@@ -9,4 +14,71 @@
         <param-name>schoolName</param-name>
         <param-value>Bright Future Academy</param-value>
     </context-param>
+
+    <!-- Step 3: the life cycle. load-on-startup = create me when the app STARTS, not on the first visit -->
+    <servlet>
+        <servlet-name>lifecycle</servlet-name>
+        <servlet-class>com.school.example.LifecycleServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>lifecycle</servlet-name>
+        <url-pattern>/lifecycle</url-pattern>
+    </servlet-mapping>
+
+    <!-- Steps 6 to 8: reading every kind of form input -->
+    <servlet>
+        <servlet-name>register</servlet-name>
+        <servlet-class>com.school.example.RegisterServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>register</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <!-- Step 9: init-params are settings for THIS servlet only (ServletConfig) -->
+    <servlet>
+        <servlet-name>config</servlet-name>
+        <servlet-class>com.school.example.ConfigServlet</servlet-class>
+        <init-param>
+            <param-name>deskName</param-name>
+            <param-value>Desk 3: Deposits</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxAmount</param-name>
+            <param-value>50000</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>config</servlet-name>
+        <url-pattern>/config</url-pattern>
+    </servlet-mapping>
+
+    <!-- Step 10: forward, include, redirect -->
+    <servlet>
+        <servlet-name>dispatchStart</servlet-name>
+        <servlet-class>com.school.example.DispatchStartServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>dispatchStart</servlet-name>
+        <url-pattern>/dispatch</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>dispatchTarget</servlet-name>
+        <servlet-class>com.school.example.DispatchTargetServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>dispatchTarget</servlet-name>
+        <url-pattern>/target</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>fragment</servlet-name>
+        <servlet-class>com.school.example.FragmentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>fragment</servlet-name>
+        <url-pattern>/fragment</url-pattern>
+    </servlet-mapping>
 </web-app>

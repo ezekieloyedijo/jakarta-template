@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EL and JSTL demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">💲 EL &amp; JSTL demos</a></header>
+<main>
+    <h1>Showing data without Java in the page</h1>
+    <ul class="demos">
+        <li><a href="el-basics">1. EL basics</a>: <code>${pupil.name}</code>, lists, maps (prepared by a servlet)</li>
+        <li><a href="scope-search.jsp">2. The scope search</a>: how EL finds a name</li>
+        <li><a href="implicit.jsp?name=Ada">3. EL implicit objects</a>: <code>param</code>, <code>header</code>, <code>cookie</code>, <code>initParam</code>...</li>
+        <li><a href="operators.jsp">4. EL operators</a>: maths, comparisons, <code>empty</code>, <code>? :</code></li>
+        <li><a href="jstl-core.jsp">5. JSTL core tags</a>: <code>c:if</code>, <code>c:choose</code>, <code>c:forEach</code>, <code>c:url</code></li>
+        <li><a href="escaping.jsp">6. &lt;c:out&gt; and escaping</a>: why user text must be escaped</li>
+    </ul>
+</main>
+</body>
+</html>

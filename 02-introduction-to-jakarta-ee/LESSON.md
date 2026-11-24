@@ -76,7 +76,7 @@ What the container does **for you**, compared with topic 01:
 | Open the port, accept connections | You wrote it | ✅ Done for you |
 | Read the raw request text and split it into parts | You wrote it | ✅ Done. You get a ready **`HttpServletRequest`** object |
 | Decode `name=Amaka%20Obi` | You wrote `getParameter` yourself | ✅ `request.getParameter("name")` gives `"Amaka Obi"` |
-| Decide which code handles `/greet` | `createContext` and manual `if`s | ✅ Just write `@WebServlet("/greet")` |
+| Decide which code handles `/greet` | `createContext` and manual `if`s | ✅ Write it **once** in `WEB-INF/web.xml`, and the container sends every `/greet` request there |
 | Write status line and headers in the exact format | You did it | ✅ You get an **`HttpServletResponse`** object with methods like `setContentType` |
 | 404 for unknown paths | You did it | ✅ Automatic |
 | Serve **many users at once** | Not handled | ✅ The container uses a **thread** per request |
@@ -97,8 +97,8 @@ In normal Java programs, **you** write `main()` and **you** call everything.
 In a Jakarta web app there is **no `main()` method**. Instead:
 
 1. **You** write a class that follows the rules (for example `extends HttpServlet` and has `doGet`).
-2. **You** label it with its address: `@WebServlet("/hello")`.
-3. The **container** finds your class at startup, creates the object, and **calls your `doGet`
+2. **You** write its address in the app's instruction sheet, `WEB-INF/web.xml`: "the class `HelloServlet` answers `/hello`".
+3. The **container** reads `web.xml` at startup, creates the object, and **calls your `doGet`
    whenever** a request for `/hello` arrives.
 
 This is called **Inversion of Control** (control is "inverted": the framework calls you, not the other way round).
@@ -177,33 +177,56 @@ The building provides it. `provided` means: "I need to know about it, but the se
 
 ## Step 9: Your first Jakarta web app
 
-Here is topic 01's greeting, Jakarta-style. **This is the whole thing:**
+Here is topic 01's greeting, Jakarta-style. It takes **two small files**.
+
+**File 1: the Java class** (`src/main/java/com/school/project/GreetServlet.java`): the chef's recipe.
 
 ```java
 package com.school.project;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/greet")                                    // 1. "my address is /greet"
-public class GreetServlet extends HttpServlet {          // 2. "I follow the Servlet rules"
+public class GreetServlet extends HttpServlet {          // 1. "I follow the Servlet rules"
 
     @Override
-    protected void doGet(HttpServletRequest request,     // 3. container hands me the order card...
+    protected void doGet(HttpServletRequest request,     // 2. container hands me the order card...
                          HttpServletResponse response)   //    ...and an empty plate
             throws IOException {
-        String name = request.getParameter("name");      // 4. already decoded for me!
-        response.setContentType("text/html");            // 5. the header, in one line
-        response.getWriter().println("<h1>Hello, " + name + "!</h1>");   // 6. the body
+        String name = request.getParameter("name");      // 3. already decoded for me!
+        response.setContentType("text/html");            // 4. the header, in one line
+        response.getWriter().println("<h1>Hello, " + name + "!</h1>");   // 5. the body
     }
 }
 ```
 
-Compare: no port, no parsing, no decoding, no path matching, no status line. **The chef only cooks.**
-(Topic 04 explains every line of a servlet in detail. For now, enjoy how short it is.)
+**File 2: the instruction sheet** (`src/main/webapp/WEB-INF/web.xml`): tells the container *which URL goes to which class*.
+
+```xml
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="6.0">
+    <servlet>                                       <!-- WHO: give the class a nickname -->
+        <servlet-name>greet</servlet-name>
+        <servlet-class>com.school.project.GreetServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>                               <!-- WHERE: which URL goes to that nickname -->
+        <servlet-name>greet</servlet-name>
+        <url-pattern>/greet</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+
+(The real file in `project/` has a longer first line with the full "schema" address. Copy that one.)
+
+🍽️ The Java class is the **chef**. `web.xml` is the **staff list on the kitchen wall**: "orders for *greet* go to chef Greet".
+A chef who isn't on the list never gets any orders, so **a servlet that isn't in `web.xml` gives a 404.**
+
+Compare with topic 01: no port, no parsing, no decoding, no path matching, no status line. **The chef only cooks.**
+(Topic 03 explains `web.xml` fully, and topic 04 explains every line of a servlet. For now, enjoy how short it is.)
+
+> 💡 From topic 05 onward you'll learn a shortcut: one line, `@WebServlet("/greet")`, written on the class,
+> can replace the two `web.xml` entries. We use `web.xml` first so you see clearly what the container needs to know.
 
 ### Run the example
 

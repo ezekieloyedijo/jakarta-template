@@ -46,12 +46,113 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
-| [example/](example/) | Small demos: a slow blocking servlet vs an async one, a timeout, an AsyncListener |
-| [project/](project/) | **Report Generator**: requests a slow "report" that is built in the background |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
+| [example/](example/) | Small demos: a slow blocking servlet vs an async one, a timeout with an AsyncListener, async + dispatch to a JSP |
+| [project/](project/) | **Report Generator**: create, list, edit, and delete report requests (CRUD); each report is built in the background by an async servlet |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is a **Report Generator**: a teacher asks for a class report ("First term results, SS1, 25 students"),
+then clicks **Generate**. Building a report is slow (about 3 seconds), so it runs on a **worker thread**.
+
+| Feature | The user... | Request | Servlet |
+|---|---|---|---|
+| **Read** (list) | opens the list | `GET /reports` | `ReportListServlet` |
+| **Create** | submits a new request | `GET` / `POST /reports/add` | `AddReportServlet` |
+| **Update** | edits a request | `GET /reports/edit?id=1`, `POST .../edit` | `EditReportServlet` |
+| **Delete** | clicks Delete | `POST /reports/delete` | `DeleteReportServlet` |
+| Generate | clicks Generate | `POST /reports/generate` | `GenerateReportServlet` (**async**) |
+| **Read** (one) | opens a finished report | `GET /reports/view?id=1` | `ViewReportServlet` |
+
+☕ The coffee shop: `GenerateReportServlet` is the **cashier**, the worker pool made by `AppListener` holds the
+**baristas**, and the `AsyncContext` is the **order ticket**.
+
+### The files, and whether each is needed
+
+| File | Needed? | Why |
+|---|---|---|
+| `pom.xml` | ✅ **Yes** | Builds and runs the app |
+| `Report.java` | ✅ **Yes** | The data: title, class, number of students, status (`PENDING`/`READY`), scores, and average/highest/lowest |
+| `ReportStore.java` | ✅ **Yes** | CRUD, plus `markReady` for the worker, and validation |
+| `ReportBuilder.java` | ✅ **Yes** | **The slow job** (3 s, then random scores) |
+| `AppListener.java` | ✅ **Yes** | Creates the store and the **worker pool** at startup, stops the workers at shutdown |
+| `GenerateReportServlet.java` | ✅ **Yes** | **The async servlet**: `startAsync`, worker, timeout, redirect, `complete` |
+| The other 5 servlets, `Page.java` | ✅ **Yes** | Normal (not async) CRUD pages and the layout |
+| `WEB-INF/web.xml` | ⚪ Optional | Only makes `/` open `/reports` |
+| `css/style.css` | ⚪ Optional, but recommended | The look (status badges, result tiles) |
+
+### Step 1: `pom.xml`
+
+Copy it from the template and set `<artifactId>topic09-project</artifactId>`.
+
+### Step 2: `Report.java`
+
+`final` fields: `id`, `title`, `className`, `students`, `status` (an `enum Status { PENDING, READY }`), `scores`
+(a `List<Integer>`), `generatedAt`, `tookMillis`. A factory `pending(id, title, className, students)` makes a new,
+empty request. `average()`, `highest()`, and `lowest()` work on the scores.
+
+### Step 3: `ReportStore.java`
+
+A `ConcurrentHashMap` (request threads **and** worker threads use it at the same time) and an `AtomicInteger` for ids.
+
+| Method | Purpose |
+|---|---|
+| `add(title, className, students)` | **Create** a `PENDING` request |
+| `findAll()`, `findById(id)` | **Read** |
+| `update(id, ...)` | **Update**. The old results no longer match, so it goes back to `PENDING` |
+| `markReady(id, scores, took)` | Called **by the worker** when the report is built. `false` if it was deleted meanwhile |
+| `delete(id)` | **Delete** |
+| `static validate(...)`, `toNumber(...)` | Title required (max 60), class from the list, 5–60 students |
+
+### Step 4: `ReportBuilder.java`, the slow job
+
+`build(report)`: `Thread.sleep(3000)`, then one random score (30–100) per student.
+
+### Step 5: `AppListener.java` (`@WebListener`)
+
+`contextInitialized`: create the store with 2 sample requests, and `Executors.newFixedThreadPool(3)`. Save both in the
+`ServletContext`. `contextDestroyed`: `shutdownNow()`.
+
+### Step 6: `Page.java`
+
+The layout, a fixed `message(code)` for `?msg=added|updated|deleted|generated`, and the Add/Edit `form(...)` with a
+class dropdown.
+
+### Step 7: `ReportListServlet` (`/reports`), Read
+
+A table. Pending rows get a **Generate** button (a POST form whose text changes to "Generating…" on click), and ready
+rows get a **View** link. Every row has **Edit** and **Delete**.
+
+✅ **Check:** <http://localhost:8080/> shows 2 pending requests.
+
+### Step 8: `AddReportServlet`, `EditReportServlet`, `DeleteReportServlet`
+
+The usual CRUD pattern: read, validate (400), save, redirect with `msg=...`. `EditReportServlet` has a `static find(...)`
+(400 / 404) that View, Delete, and Generate reuse.
+
+### Step 9: `GenerateReportServlet`, the async servlet
+
+`@WebServlet(urlPatterns = "/reports/generate", asyncSupported = true)`, `doPost`:
+1. `find(...)` the report (400 / 404 answered normally, before going async).
+2. `AsyncContext async = request.startAsync();` and `async.setTimeout(10_000);`
+3. `addListener(...)`: `onTimeout` answers **503** "took too long".
+4. `workers.submit(() -> { ... })`: `ReportBuilder.build`, `store.markReady`, then
+   `sendRedirect(".../view?id=N&msg=generated")` and `async.complete()`.
+5. An `AtomicBoolean answered` makes sure only the worker **or** the timeout answers.
+6. `doPost` returns at once. The terminal says "exec-7 handed report #1 to a worker and is free again".
+
+✅ **Check:** click Generate. After about 3 seconds you land on the report with its average, highest, and lowest scores.
+
+### Step 10: `ViewReportServlet` (`/reports/view`), Read one
+
+If the report is still pending, say so. Otherwise show three tiles (average, highest, lowest), when and how fast it
+was built, and a table of every student's score.
+
+✅ **Final check:** click Generate on two reports in two tabs. Both finish after about 3 seconds (not 6), and `/reports` opens
+instantly while they run. Edit a ready report: it goes back to pending.
 
 ## Check your understanding: 10 basic questions
 

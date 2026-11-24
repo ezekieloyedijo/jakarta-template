@@ -26,6 +26,25 @@
         <url-pattern>/classic</url-pattern>
     </servlet-mapping>
 
+    <!-- Two more servlets, registered the same way: WHO, then WHERE -->
+    <servlet>
+        <servlet-name>settings</servlet-name>
+        <servlet-class>com.school.example.SettingsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>settings</servlet-name>
+        <url-pattern>/settings</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>boom</servlet-name>
+        <servlet-class>com.school.example.BoomServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>boom</servlet-name>
+        <url-pattern>/boom</url-pattern>
+    </servlet-mapping>
+
     <!-- (c) APP-WIDE SETTINGS your code can read with getServletContext().getInitParameter("...") -->
     <context-param>
         <param-name>schoolName</param-name>

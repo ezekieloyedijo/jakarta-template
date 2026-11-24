@@ -40,13 +40,22 @@ a) GlassFish  b) WildFly  c) Tomcat  d) Nginx
 
 **9.** What does "Don't call us, we'll call you" mean for a servlet?
 
-<details><summary>Model answer</summary>We never call <code>doGet</code> ourselves. We only write it and register an address with <code>@WebServlet</code>. The container decides <b>when</b> to call it: every time a matching request arrives.</details>
+<details><summary>Model answer</summary>We never call <code>doGet</code> ourselves. We only write it and register its address in <code>web.xml</code>. The container decides <b>when</b> to call it: every time a matching request arrives.</details>
 
 ## Part C: Hands-on
 
 **10.** Run `example/` and open `/container-info`. Write down the **server product** and **Servlet version** it reports.
 
-**11.** In `project/`, create a new servlet `@WebServlet("/about")` that shows your name and school. Restart or wait for reload, then visit `/about`.
+**11.** In `project/`, create a new servlet `AboutServlet` that shows your name and school. Register it in `WEB-INF/web.xml` at `/about` (a `<servlet>` and a `<servlet-mapping>`). Restart the app, then visit `/about`.
+
+<details><summary>Hint: what goes in web.xml</summary><pre>&lt;servlet&gt;
+    &lt;servlet-name&gt;about&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;com.school.project.AboutServlet&lt;/servlet-class&gt;
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;about&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/about&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;</pre>If you get a 404, check that the class name in <code>&lt;servlet-class&gt;</code> is spelled exactly right, including the package.</details>
 
 **12.** In `project/`, visit `/greet` **without** `?name=`. What status code do you get? Find the line in `GreetServlet` that sets it.
 *Hint:* in Chrome press **F12**, open the **Network** tab, and refresh to see status codes.

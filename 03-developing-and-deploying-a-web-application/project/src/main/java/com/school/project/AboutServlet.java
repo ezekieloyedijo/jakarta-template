@@ -1,14 +1,13 @@
 package com.school.project;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebServlet("/about")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/about"
 public class AboutServlet extends HttpServlet {
 
     @Override

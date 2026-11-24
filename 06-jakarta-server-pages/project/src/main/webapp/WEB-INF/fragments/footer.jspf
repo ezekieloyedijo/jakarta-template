@@ -1,0 +1,5 @@
+<%-- The bottom of every page --%>
+</main>
+<footer>Built with JSP: every page is a .jsp file that Tomcat turns into a servlet.</footer>
+</body>
+</html>

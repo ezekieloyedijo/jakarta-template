@@ -62,11 +62,16 @@ public class CartServlet extends HttpServlet {
 
 **12.** In `example/`, open `/lifecycle` five times, then stop the server. Copy the lines from the terminal that prove the life cycle.
 
-**13.** In `project/`, change the `decimalPlaces` init param to `4`. Calculate `10 / 3`. What changes?
+**13.** In `project/`, open `WEB-INF/web.xml`. Change `loadSampleData` to `false`, and add `JSS4` to the end of `classNames`. Restart. What two things changed, and why didn't you need to touch any Java code?
 
-**14.** Add a **`%` (remainder)** operation to the calculator. *Hint:* `a.remainder(b)`, and don't forget the zero check.
+<details><summary>Answer</summary>The list starts <b>empty</b>, and <b>JSS4</b> appears in the Class dropdown. Both values are <b>read from web.xml</b> by the code (<code>getInitParameter</code> and <code>getServletContext().getInitParameter</code>), so changing the settings file is enough.</details>
 
-**15. Challenge:** add a servlet `/stats` that reads the `totalCalculations` attribute from the `ServletContext` and displays it.
-Why can it see the same number as the calculator?
+**14.** In `project/`, remove the `<load-on-startup>1</load-on-startup>` line from `web.xml`, restart, and open <http://localhost:8080/add-student> **first** (before the list page). Submit the form. What happens, and why?
 
-<details><summary>Answer</summary>Because the ServletContext is <b>one object shared by the whole application</b>. Any servlet can read what another servlet put there.</details>
+<details><summary>Answer</summary>A <b>500 error</b> (a <code>NullPointerException</code>). Without <code>load-on-startup</code>, <code>StudentListServlet.init()</code> only runs on the first visit to <code>/students</code>, so the <code>StudentStore</code> was never put in the <code>ServletContext</code>, and <code>StudentStore.from(...)</code> returned <code>null</code>. Put the line back.</details>
+
+**15. Challenge:** add a servlet `/stats` (register it in `web.xml`!) that shows how many students there are in each class.
+Why can it see the same students as the other servlets?
+*Hint:* get the store with `StudentStore.from(getServletContext())`, then count with a loop over `findAll()`.
+
+<details><summary>Answer</summary>Because the <code>ServletContext</code> is <b>one object shared by the whole application</b>. <code>StudentListServlet</code> put the <code>StudentStore</code> there, so every servlet that reads it gets the very same store.</details>

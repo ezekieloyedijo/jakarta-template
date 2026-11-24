@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JSP demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">📄 JSP demos</a></header>
+<main>
+    <h1>The building blocks of a JSP</h1>
+    <ul class="demos">
+        <li><a href="first.jsp">1. My first JSP</a>: HTML with one line of Java</li>
+        <li><a href="expressions.jsp">2. Expressions</a> <code>&lt;%= %&gt;</code>: print one value</li>
+        <li><a href="scriptlets.jsp">3. Scriptlets</a> <code>&lt;% %&gt;</code>: if/else and a loop</li>
+        <li><a href="declarations.jsp">4. Declarations</a> <code>&lt;%! %&gt;</code>: fields and methods (and the danger)</li>
+        <li><a href="directives.jsp">5. Directives</a> <code>&lt;%@ %&gt;</code>: page settings, imports, include</li>
+        <li><a href="comments.jsp">6. Comments</a>: HTML comments vs JSP comments</li>
+        <li><a href="timetable">7. Servlet + JSP together</a>: a servlet prepares data, a JSP shows it</li>
+    </ul>
+    <p class="note">Want to see the servlet a JSP turns into? After opening a page, look in
+        <code>target/cargo/configurations/tomcat10x/work/Catalina/localhost/ROOT/org/apache/jsp/</code>
+        for files like <code>scriptlets_jsp.java</code>.</p>
+</main>
+</body>
+</html>

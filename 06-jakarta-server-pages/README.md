@@ -50,12 +50,113 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
-| [example/](example/) | Small demos of each JSP building block |
-| [project/](project/) | **Grade Calculator**: a form posted to a JSP that shows the average and grade |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
+| [example/](example/) | Small demos of each JSP building block, plus a servlet that forwards to a JSP |
+| [project/](project/) | **Grade Book**: add, list, edit, and delete subjects with their scores; shows each grade and the average (CRUD in JSP pages) |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is a **Grade Book**: a student's subjects and scores, with each subject's grade and the overall average.
+It is built **only from JSP pages** (no servlets), so you practise every JSP building block.
+
+| Feature | The user... | Request | Page |
+|---|---|---|---|
+| **Read** | opens the list | `GET /index.jsp` (or just `/`) | `index.jsp` |
+| **Create** | opens the empty form, then submits it | `GET` then `POST /add.jsp` | `add.jsp` |
+| **Update** | opens the filled form, then submits it | `GET /edit.jsp?id=2` then `POST /edit.jsp` | `edit.jsp` |
+| **Delete** | clicks Delete | `POST /delete.jsp` | `delete.jsp` |
+
+📝 Think of a **report-card template** from the school office: the boxes and lines are printed (the HTML), and the
+teacher only fills in the blanks (the Java). The office's rule book (`GradeBook.java`) says what each score is worth.
+
+### The files, and whether each is needed
+
+| File | Needed? | Why |
+|---|---|---|
+| `pom.xml` | ✅ **Yes** | Builds and runs the app |
+| `Subject.java` | ✅ **Yes** | The data: one subject (id, name, score) and its grade |
+| `GradeBook.java` | ✅ **Yes** | The storage (in `application`), the CRUD methods, the grade scale, and the form checks |
+| `WEB-INF/fragments/header.jspf`, `footer.jspf` | ✅ **Yes** | The top and bottom of every page, pasted in with `<%@ include %>` |
+| `WEB-INF/fragments/subject-form.jspf` | ✅ **Yes** | The one form shared by Add and Edit |
+| `index.jsp`, `add.jsp`, `edit.jsp`, `delete.jsp` | ✅ **Yes** | One page per job |
+| `WEB-INF/web.xml` | ⚪ Recommended | Makes `index.jsp` the welcome page and reads JSP files as UTF-8. Without it `/` gives a 404 (open `/index.jsp` instead) |
+| `css/style.css` | ⚪ Optional, but recommended | The look |
+| `index.html` | ❌ **Not used** | `index.jsp` is the home page |
+
+**The order:** the Java classes first (the pages use them), then the fragments, then one page at a time.
+
+### Step 1: `pom.xml`
+
+Copy it from the template and set `<artifactId>topic06-project</artifactId>`.
+
+### Step 2: `Subject.java`, the data
+
+`final` fields `id`, `name`, `score` with getters, plus `getGrade()`, which calls `GradeBook.gradeFor(score)`.
+
+### Step 3: `GradeBook.java`, the rules and the storage
+
+| Method | Purpose |
+|---|---|
+| `static of(application)` | The one shared grade book, stored as an attribute of the `ServletContext`. Created with 3 sample subjects the first time |
+| `add(name, score)` | **Create**: gives the subject the next id |
+| `all()`, `find(id)` | **Read**: every subject sorted by id, or one (or `null`) |
+| `update(id, name, score)` | **Update**: `false` if the id doesn't exist |
+| `delete(id)` | **Delete**: `false` if the id doesn't exist |
+| `average()` | The average score to 1 decimal place |
+| `static gradeFor(score)` | 70+ A, 60+ B, 50+ C, 45+ D, 40+ E, below 40 F |
+| `static validate(name, scoreText)` | The list of problems: name required (max 40), score a whole number 0–100 |
+| `static toScore(text)`, `toId(text)` | Turn typed text into a number, or `null` |
+| `static escape(text)` | Safe HTML (pages call it for every name they print) |
+
+### Step 4: `web.xml`
+
+Add `<welcome-file>index.jsp</welcome-file>` and the `<jsp-config>` block with `<page-encoding>UTF-8</page-encoding>`
+for `*.jsp` and `*.jspf`. There are no servlets to register.
+
+### Step 5: The fragments in `WEB-INF/fragments/`
+
+- **`header.jspf`**: `<!DOCTYPE html>`, the `<head>` with the stylesheet, the header bar with the menu, and `<h1><%= GradeBook.escape(title) %></h1>`.
+  It uses a variable `title` that each page creates first.
+- **`footer.jspf`**: closes `</main></body></html>`.
+- **`subject-form.jspf`**: the red error list, then the form. It uses the variables `action`, `id`, `name`, `score`, `errors`, and `button`.
+  The hidden `id` input is only printed when `id != null` (editing).
+
+### Step 6: `index.jsp`, Read
+
+1. `<%@ page import="com.school.project.GradeBook, ..." %>`
+2. A scriptlet: `title`, `GradeBook book = GradeBook.of(application)`, `book.all()`, and a fixed message for `?msg=added|updated|deleted`.
+3. Include the header. If the list is empty, say so; otherwise loop with `<% for (Subject s : subjects) { %>` and print one row
+   with an **Edit** link (`edit.jsp?id=...`) and a **Delete** form (POST to `delete.jsp` with a hidden id).
+4. A `<tfoot>` row with `book.average()` and its grade. Include the footer.
+
+✅ **Check:** <http://localhost:8080/> shows Mathematics, English Language, and Biology with an average of 65.7 (B).
+
+### Step 7: `add.jsp`, Create
+
+The scriptlet sets `action = "add.jsp"`, `id = null`, empty `name` and `score`, and no errors. Then:
+`if ("POST".equals(request.getMethod()))` → read and trim the two parameters → `GradeBook.validate(...)` →
+if there are no errors: `add(...)`, `response.sendRedirect("index.jsp?msg=added")`, and **`return;`**.
+Otherwise `response.setStatus(400)` and fall through to show the form with the errors.
+The rest is just three includes: header, form, footer.
+
+✅ **Check:** adding "Chemistry, 38" shows an F. Submitting an empty name shows the red box and keeps what you typed.
+
+### Step 8: `edit.jsp`, Update
+
+Like `add.jsp`, but first read `id` (**400** if it isn't a number, **404** if there is no such subject; use
+`response.sendError(...)` then `return;`). On GET, fill `name` and `score` from the saved subject. On POST, validate
+and call `book.update(...)`.
+
+### Step 9: `delete.jsp`, Delete
+
+No HTML at all. If the method isn't POST → **405**. Read `id` (400 / 404 as above), call `delete`, redirect with
+`msg=deleted`.
+
+✅ **Final check:** edit and delete work, and `/edit.jsp?id=99` gives a 404.
+Open `/WEB-INF/fragments/header.jspf`: 404, because fragments are private.
 
 ## Check your understanding: 10 basic questions
 

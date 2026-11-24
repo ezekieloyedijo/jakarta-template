@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,7 +10,7 @@ import java.io.IOException;
  * Produces only a SMALL PIECE of HTML (not a whole page), so that another servlet can INCLUDE it.
  * (Visit /fragment directly and you'll just see the yellow box on its own.)
  */
-@WebServlet("/fragment")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/fragment"
 public class FragmentServlet extends HttpServlet {
 
     @Override

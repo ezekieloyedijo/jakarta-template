@@ -48,12 +48,110 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
-| [example/](example/) | Small demos: the same page built without MVC and with MVC |
-| [project/](project/) | **Student List**: list students and add a new one, in a clean Controller/Model/View split |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
+| [example/](example/) | The same temperature converter built without MVC (one JSP) and with MVC |
+| [project/](project/) | **Student List**: create, read, update, delete, and search students, in a clean Controller/Model/View split |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is the **Student List**: the same features as topic 04's School Management app (create, read, update,
+delete, and search students), rebuilt with **MVC**:
+
+| Feature | Request | Controller method | Model call | View |
+|---|---|---|---|---|
+| **Read** / search | `GET /students` (`?q=ss`) | `list` | `findAll()` / `search(q)` | `student-list.jsp` |
+| **Create** (form) | `GET /students?action=new` | `showForm` | | `student-form.jsp` |
+| **Create** (save) | `POST /students` `action=insert` | `insert` | `validate()`, `insert(...)` | redirect, or form with errors |
+| **Update** (form) | `GET /students?action=edit&id=2` | `showEditForm` | `findById(2)` | `student-form.jsp` |
+| **Update** (save) | `POST /students` `action=update` | `update` | `validate()`, `update(...)` | redirect, or form with errors |
+| **Delete** | `POST /students` `action=delete` | `delete` | `delete(id)` | redirect |
+
+🍽️ The restaurant: `StudentController` is the **waiter**, the `model` package is the **kitchen**, and the JSPs in
+`WEB-INF/views` are the **plates**.
+
+### The files, and whether each is needed
+
+| File | Layer | Needed? | Why |
+|---|---|---|---|
+| `pom.xml` | | ✅ **Yes** | Builds and runs the app |
+| `model/Student.java` | Model | ✅ **Yes** | One student (getters only) |
+| `model/StudentForm.java` | Model | ✅ **Yes** | Typed values + `validate()` + the lists of classes and genders |
+| `model/StudentDao.java` | Model | ✅ **Yes** | Storage and CRUD + search |
+| `controller/AppListener.java` | Controller | ✅ **Yes** | Creates the DAO with 3 sample students at startup |
+| `controller/StudentController.java` | Controller | ✅ **Yes** | **The one servlet**: reads `action`, calls the model, forwards or redirects |
+| `view/Html.java` | View | ✅ **Yes** | `escape(...)` for the JSPs (replaced by `<c:out>` in topic 12) |
+| `WEB-INF/views/student-list.jsp`, `student-form.jsp` | View | ✅ **Yes** | The two pages |
+| `WEB-INF/views/header.jspf`, `footer.jspf` | View | ✅ **Yes** | Shared top and bottom (`<%@ include %>`) |
+| `WEB-INF/web.xml` | | ⚪ Recommended | Makes `/` open `/students`, and UTF-8 for JSPs |
+| `css/style.css` | | ⚪ Optional, but recommended | The look |
+
+**The order:** model first (it needs nothing), then the controller, then the views. Build and test one action at a time.
+
+### Step 1: `pom.xml` and the three packages
+
+Set `<artifactId>topic11-project</artifactId>`. Create the packages `com.school.project.model`, `.controller`, and `.view`.
+The package names say which layer each class belongs to.
+
+### Step 2: The model
+
+- **`Student`**: `final` fields `id`, `name`, `gender`, `age`, `className`, with getters.
+- **`StudentForm`**: constants `CLASSES`, `GENDERS`, `MIN_AGE`, `MAX_AGE`; a constructor that trims (and turns `null` into `""`);
+  `empty()`, `of(student)`, `validate()`, getters, `ageAsNumber()`, and `static toNumber(text)`.
+- **`StudentDao`**: a `ConcurrentHashMap` and an `AtomicInteger`; `insert`, `findAll` (by id), `search(text)`
+  (name or class contains, not case-sensitive), `findById`, `update`, `delete`.
+
+None of them imports `jakarta.servlet`. That's the sign of a clean model.
+
+### Step 3: `controller/AppListener.java`
+
+`@WebListener`; in `contextInitialized`, create the DAO, insert Amaka, Tolu, and Chidi, and save it as `"studentDao"`.
+
+### Step 4: `controller/StudentController.java`, the skeleton
+
+`@WebServlet("/students")`. In `init()`, get the DAO from the `ServletContext`.
+- `doGet`: `action` (default `"list"`) → `switch`: `list`, `new`, `edit`; anything else → **400**.
+- `doPost`: `setCharacterEncoding("UTF-8")`, then `switch`: `insert`, `update`, `delete`; anything else → **400**.
+
+Helpers:
+
+| Helper | Purpose |
+|---|---|
+| `showForm(request, response, form, id, errors)` | Sets `form`, `id`, `errors`, `classes` and forwards to `student-form.jsp` |
+| `read(request)` | Builds a `StudentForm` from the 4 parameters |
+| `find(request, response)` | The student for `id`, or `null` after 400 / 404 |
+| `message(code)` | `added` / `updated` / `deleted` → a fixed sentence, anything else → `null` |
+
+### Step 5: Read: `list(...)` and `student-list.jsp`
+
+Controller: `q` → `dao.search(q)` or `dao.findAll()`; set `students`, `q`, `message`; forward.
+View: read the three attributes, show the green message, the search box (keeps `q`), "N student(s) for ...",
+and the table with **Edit** (`students?action=edit&id=N`) and **Delete** (a POST form with hidden `action=delete` and `id`).
+
+✅ **Check:** <http://localhost:8080/> shows the 3 students; `?q=ss` finds all 3 (JSS2 also contains "SS").
+
+### Step 6: Create: `new`, `insert`, and `student-form.jsp`
+
+View: one form for both jobs. `editing = (id != null)`. A hidden `action` is `update` when editing, otherwise `insert`;
+a hidden `id` only when editing. Name, gender radios, age, and the class dropdown are filled from `form`.
+Controller `insert`: `read` → `validate` → errors? status 400 + `showForm(..., null, errors)`; else `dao.insert`,
+`sendRedirect("students?msg=added")`.
+
+✅ **Check:** add a student; submit an empty form → 4 red errors and status 400.
+
+### Step 7: Update: `edit` and `update`
+
+`showEditForm`: `find` → `showForm(StudentForm.of(s), s.getId(), List.of())`.
+`update`: `find` → `read` → `validate` → `dao.update` → redirect with `msg=updated`.
+
+### Step 8: Delete
+
+`delete`: `find` → `dao.delete` → redirect with `msg=deleted`.
+
+✅ **Final check:** all CRUD actions and search work. `/students?action=zap` gives 400.
+`/WEB-INF/views/student-list.jsp` gives 404: the view can only be reached through the controller.
 
 ## Check your understanding: 10 basic questions
 

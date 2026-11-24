@@ -50,12 +50,78 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
 | [example/](example/) | Small demos: EL basics, scope search, operators, each JSTL core tag |
-| [project/](project/) | **Student List, version 2**: topic 11's app with every scriptlet replaced by EL and JSTL |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [project/](project/) | **Student List, version 2**: topic 11's CRUD + search app with every scriptlet replaced by EL and JSTL |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is the **Student List, version 2**: the same CRUD + search app as topic 11, with the **same model and
+controller**. Only the **views** are rewritten, using EL and JSTL instead of scriptlets.
+
+| Feature | Request | View (now EL + JSTL) |
+|---|---|---|
+| **Read** / search | `GET /students` (`?q=ss`) | `student-list.jsp`: `<c:forEach>`, `<c:out>`, `<c:choose>` |
+| **Create** | `GET /students?action=new`, `POST action=insert` | `student-form.jsp` |
+| **Update** | `GET /students?action=edit&id=2`, `POST action=update` | `student-form.jsp` |
+| **Delete** | `POST action=delete` | (redirect) |
+
+🪧 Same notice board, but the clerk no longer reads every value out by hand: the board has **slots** (`${...}`) that fill themselves.
+
+### The files, and whether each is needed
+
+| File | Needed? | Changed from topic 11? |
+|---|---|---|
+| `pom.xml` | ✅ **Yes** | Only `<artifactId>topic12-project</artifactId>`. JSTL already comes from the parent pom |
+| `model/Student.java`, `StudentForm.java`, `StudentDao.java` | ✅ **Yes** | ❌ **No change**: copied as they are |
+| `controller/AppListener.java`, `StudentController.java` | ✅ **Yes** | ❌ **No change** |
+| `view/Html.java` | ❌ **Deleted** | `<c:out>` does the escaping now |
+| `WEB-INF/views/header.jspf`, `footer.jspf` | ✅ **Yes** | ✏️ Rewritten: `<c:out value="${title}"/>` and `${pageContext.request.contextPath}` |
+| `WEB-INF/views/student-list.jsp` | ✅ **Yes** | ✏️ Rewritten with EL + JSTL |
+| `WEB-INF/views/student-form.jsp` | ✅ **Yes** | ✏️ Rewritten with EL + JSTL |
+| `WEB-INF/web.xml`, `css/style.css` | ⚪ Recommended / optional | ❌ No change |
+
+### Step 1: Copy topic 11's project
+
+Copy `11-.../project` to `12-.../project`. Set `<artifactId>topic12-project</artifactId>`. Delete `view/Html.java`.
+Run it once: it works exactly like topic 11.
+
+### Step 2: The header and footer
+
+At the top of `header.jspf`, the page title becomes `<c:out value="${title}"/>`, and every link starts with
+`${pageContext.request.contextPath}`. Each view creates `title` with `<c:set var="title" value="..."/>` **before**
+`<%@ include file="header.jspf" %>`, and has the `taglib` line at the very top (the included file uses `c:` too).
+
+### Step 3: `student-list.jsp`
+
+Replace the scriptlets with tags (see the table in LESSON Step 10):
+
+| Part of the page | EL / JSTL |
+|---|---|
+| The green message | `<c:if test="${not empty message}"><p class="msg ok">${message}</p></c:if>` (fixed text from the controller, so `${}` is fine) |
+| The search box | `value="<c:out value='${q}'/>"` and a **Clear** link inside `<c:if test="${not empty q}">` |
+| The count | `${students.size()} student(s)` and `for "<c:out value='${q}'/>"` |
+| Empty list or table | `<c:choose>` with `<c:when test="${empty students}">` and `<c:otherwise>` |
+| The rows | `<c:forEach var="s" items="${students}">`: `${s.id}`, `<c:out value="${s.name}"/>`, `${s.age}`... |
+
+✅ **Check:** the list, the search, and Delete work as before. Open the file: there is no `<%` anywhere.
+
+### Step 4: `student-form.jsp`
+
+| Part | EL / JSTL |
+|---|---|
+| Editing or adding? | `<c:set var="editing" value="${not empty id}"/>` |
+| Title | `<c:set var="title" value="${editing ? 'Edit student' : 'Add a student'}"/>` |
+| Errors | `<c:if test="${not empty errors}">` + `<c:forEach var="e" items="${errors}"><li><c:out value="${e}"/></li></c:forEach>` |
+| Hidden fields | `value="${editing ? 'update' : 'insert'}"` and `<c:if test="${editing}">` for the id |
+| Text inputs | `value="<c:out value='${form.name}'/>"` |
+| Radio / dropdown | `${form.gender == 'Male' ? 'checked' : ''}` and `<c:forEach var="c" items="${classes}">` with `${c == form.className ? 'selected' : ''}` |
+
+✅ **Final check:** add, edit (the right radio and class are pre-selected), validation errors (typed values kept),
+delete, and search all behave exactly like topic 11. A name like `<script>x` is shown as text.
 
 ## Check your understanding: 10 basic questions
 

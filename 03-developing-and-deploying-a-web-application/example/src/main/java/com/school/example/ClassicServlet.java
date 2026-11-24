@@ -7,8 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Notice: NO @WebServlet annotation here!
- * This servlet is registered the "classic" way, in WEB-INF/web.xml:
+ * A servlet is just a Java class. Tomcat only knows about it because it is registered in WEB-INF/web.xml:
  *   <servlet>         = WHO   (nickname "classic" -> this class)
  *   <servlet-mapping> = WHERE (URL /classic -> nickname "classic")
  */
@@ -20,8 +19,9 @@ public class ClassicServlet extends HttpServlet {
         response.getWriter().println("""
                 <!DOCTYPE html><html><head><link rel="stylesheet" href="css/style.css"></head><body>
                 <h1>I am ClassicServlet</h1>
-                <p>I have no annotation. The container found me because <code>web.xml</code> maps
-                   <code>/classic</code> to me.</p>
+                <p>The container found me because <code>web.xml</code> gives my class a nickname
+                   (<code>&lt;servlet&gt;</code>) and maps <code>/classic</code> to that nickname
+                   (<code>&lt;servlet-mapping&gt;</code>).</p>
                 <p><a href="./">Back</a></p></body></html>
                 """);
     }

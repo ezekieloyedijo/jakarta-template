@@ -1,0 +1,13 @@
+<%-- The top of the demo pages. Each page sets the variable "title" first with <c:set>. --%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><c:out value="${title}"/></title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+</head>
+<body>
+<header><a class="brand" href="${pageContext.request.contextPath}/">💲 EL &amp; JSTL demos</a></header>
+<main>
+    <h1><c:out value="${title}"/></h1>

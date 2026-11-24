@@ -1,7 +1,6 @@
 package com.school.example;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ import java.io.PrintWriter;
  *   /dispatch?mode=include   -> paste /fragment's output into my page (address bar does NOT change)
  *   /dispatch?mode=redirect  -> tell the BROWSER to go to /target    (address bar CHANGES)
  */
-@WebServlet("/dispatch")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/dispatch"
 public class DispatchStartServlet extends HttpServlet {
 
     @Override

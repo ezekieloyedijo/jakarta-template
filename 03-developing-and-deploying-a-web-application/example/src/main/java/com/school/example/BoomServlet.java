@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * A servlet that crashes ON PURPOSE, to show the custom 500 error page from web.xml.
  * Look at the TERMINAL after visiting /boom: the full error (stack trace) is logged there.
  */
-@WebServlet("/boom")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/boom"
 public class BoomServlet extends HttpServlet {
 
     @Override

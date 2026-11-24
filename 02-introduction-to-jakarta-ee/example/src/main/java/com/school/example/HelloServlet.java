@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,13 +10,13 @@ import java.io.IOException;
  * The smallest useful Jakarta web component.
  *
  * There is NO main() method. The CONTAINER (Tomcat):
- *   - finds this class when the app starts (because of @WebServlet)
+ *   - finds this class when the app starts (because WEB-INF/web.xml lists it)
  *   - creates ONE object of it
  *   - calls doGet(...) every time someone visits http://localhost:8080/hello
  *
  * "Don't call us, we'll call you."
  */
-@WebServlet("/hello")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/hello"
 public class HelloServlet extends HttpServlet {
 
     @Override

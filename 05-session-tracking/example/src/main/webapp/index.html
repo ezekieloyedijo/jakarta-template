@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Session Tracking demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">🍪 Session Tracking demos</a></header>
+<main>
+    <h1>Four ways to remember a user</h1>
+    <ul class="demos">
+        <li><a href="hidden">1. Hidden form fields</a>: a 2-step form that carries your name in a hidden input</li>
+        <li><a href="url-rewriting">2. URL rewriting</a>: the language travels at the end of every link</li>
+        <li><a href="cookie-counter">3. Cookies</a>: a visit counter stored in your browser</li>
+        <li><a href="session-counter">4. HttpSession</a>: a visit counter stored on the server</li>
+        <li><a href="session-end">5. Ending a session</a>: what "Log out" does</li>
+    </ul>
+    <p class="note">Every servlet here is registered with <code>@WebServlet("/url")</code> instead of
+        <code>web.xml</code> entries. <code>web.xml</code> now only holds the session timeout.</p>
+</main>
+</body>
+</html>

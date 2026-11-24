@@ -26,6 +26,10 @@ Inside every topic folder you will find the same five things:
 > **Tip for the teacher:** Read `README.md` and you know *why*. Read `LESSON.md` and you know *what* and *how*.
 > Run `example/` and you have *seen it*. Build `project/` and you have *done it*. Pass `QUIZ.md` and you *own it*.
 
+> **How servlets are registered in this course:** in topics **02 to 04**, every servlet is registered by hand in
+> `WEB-INF/web.xml` (`<servlet>` + `<servlet-mapping>`), so students see exactly what the server needs to know.
+> From topic **05** onward we use the shortcut, the `@WebServlet("/url")` annotation on the class.
+
 ---
 
 ## 2. The topics (the full journey)

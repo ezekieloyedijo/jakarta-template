@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SCHOOL MANAGEMENT: the deployment descriptor.
+
+  This file tells Tomcat EVERYTHING about the app:
+    1. app-wide settings (context-param)
+    2. which page to show first (welcome-file)
+    3. every servlet: WHO it is (<servlet>) and WHERE it answers (<servlet-mapping>)
+
+  Change a setting here and restart: no Java code needs to change.
+-->
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>School Management</display-name>
+
+    <!-- ===== 1. APP-WIDE SETTINGS: read with getServletContext().getInitParameter("...") ===== -->
+    <context-param>
+        <param-name>schoolName</param-name>
+        <param-value>Bright Future Academy</param-value>
+    </context-param>
+    <context-param>
+        <!-- the choices in the "Class" dropdown, separated by commas -->
+        <param-name>classNames</param-name>
+        <param-value>JSS1,JSS2,JSS3,SS1,SS2,SS3</param-value>
+    </context-param>
+
+    <!-- ===== 2. THE FIRST PAGE for http://localhost:8080/ ===== -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <!-- ===== 3. THE SERVLETS ===== -->
+
+    <!-- READ: the list of all students -->
+    <servlet>
+        <servlet-name>studentList</servlet-name>
+        <servlet-class>com.school.project.StudentListServlet</servlet-class>
+        <!-- A setting for THIS servlet only (ServletConfig): read with getInitParameter("loadSampleData") -->
+        <init-param>
+            <param-name>loadSampleData</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <!-- Create this servlet when the app STARTS, because its init() creates the StudentStore -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>studentList</servlet-name>
+        <url-pattern>/students</url-pattern>
+    </servlet-mapping>
+
+    <!-- CREATE -->
+    <servlet>
+        <servlet-name>addStudent</servlet-name>
+        <servlet-class>com.school.project.AddStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>addStudent</servlet-name>
+        <url-pattern>/add-student</url-pattern>
+    </servlet-mapping>
+
+    <!-- UPDATE -->
+    <servlet>
+        <servlet-name>editStudent</servlet-name>
+        <servlet-class>com.school.project.EditStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>editStudent</servlet-name>
+        <url-pattern>/edit-student</url-pattern>
+    </servlet-mapping>
+
+    <!-- DELETE -->
+    <servlet>
+        <servlet-name>deleteStudent</servlet-name>
+        <servlet-class>com.school.project.DeleteStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>deleteStudent</servlet-name>
+        <url-pattern>/delete-student</url-pattern>
+    </servlet-mapping>
+
+    <!-- SEARCH -->
+    <servlet>
+        <servlet-name>searchStudent</servlet-name>
+        <servlet-class>com.school.project.SearchStudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>searchStudent</servlet-name>
+        <url-pattern>/search</url-pattern>
+    </servlet-mapping>
+</web-app>

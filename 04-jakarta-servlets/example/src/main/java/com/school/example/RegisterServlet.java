@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +13,7 @@ import java.util.List;
  *   GET  /register -> doGet():  show the empty form
  *   POST /register -> doPost(): read EVERY kind of input, validate, respond
  */
-@WebServlet("/register")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/register"
 public class RegisterServlet extends HttpServlet {
 
     @Override

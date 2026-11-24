@@ -1,13 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Topic 04 - Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>School Management</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h1>Topic 04 Project: Simple Calculator</h1>
-<p><a class="button" href="calculator">Open the calculator</a></p>
-<p>The same servlet also answers at <a href="calc">/calc</a>, because it is mapped to two URL patterns.</p>
+<header>
+    <a class="brand" href="./">🏫 School Management</a>
+    <nav>
+        <a href="students">Students</a>
+        <a href="add-student">Add student</a>
+        <a href="search">Search</a>
+    </nav>
+</header>
+<main>
+    <h1>Welcome</h1>
+    <p>Keep a list of the students in your school: add them, edit them, delete them, and search for them.</p>
+
+    <div class="tiles">
+        <a class="tile" href="students"><b>📋 All students</b><span>See the list</span></a>
+        <a class="tile" href="add-student"><b>➕ Add a student</b><span>Fill in the form</span></a>
+        <a class="tile" href="search"><b>🔎 Search</b><span>By name or class</span></a>
+    </div>
+
+    <p class="note">This page is a plain HTML file. Every other page is built by a servlet.
+        Students are kept in memory, so they disappear when Tomcat stops (databases come in topic 08).</p>
+</main>
 </body>
 </html>

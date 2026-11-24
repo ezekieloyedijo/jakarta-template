@@ -1,8 +1,6 @@
 package com.school.example;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.annotation.WebInitParam;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,15 +9,10 @@ import java.io.IOException;
 
 /**
  * Two kinds of configuration:
- *   - ServletConfig  (init params): belong to THIS servlet only.     Set here with @WebInitParam.
- *   - ServletContext (context params): belong to the WHOLE app.       Set in WEB-INF/web.xml.
+ *   - ServletConfig  (init params): belong to THIS servlet only. <init-param> inside its <servlet> in web.xml.
+ *   - ServletContext (context params): belong to the WHOLE app.   <context-param> in web.xml.
  */
-@WebServlet(
-        urlPatterns = "/config",
-        initParams = {
-                @WebInitParam(name = "deskName", value = "Desk 3: Deposits"),
-                @WebInitParam(name = "maxAmount", value = "50000")
-        })
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/config"
 public class ConfigServlet extends HttpServlet {
 
     @Override
@@ -34,7 +27,7 @@ public class ConfigServlet extends HttpServlet {
 
         response.setContentType("text/html;charset=UTF-8");
         response.getWriter().println(Html.page("Configuration", """
-                <h2>ServletConfig: only for this servlet (@WebInitParam)</h2>
+                <h2>ServletConfig: only for this servlet (&lt;init-param&gt; in web.xml)</h2>
                 <table>
                   <tr><th>deskName</th><td>%s</td></tr>
                   <tr><th>maxAmount (converted to int)</th><td>%,d</td></tr>

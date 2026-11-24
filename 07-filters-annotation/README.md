@@ -45,12 +45,128 @@ You should be able to:
 
 | Path | What it will show |
 |---|---|
-| `LESSON.md` | The full lesson (being written) |
-| [example/](example/) | Small demos: a logging filter, a timing filter, two filters in a chain |
-| [project/](project/) | **Members-Only Area**: a login page plus a filter that guards every page under `/members/` |
-| `QUIZ.md` | More questions and tasks (being written) |
+| [LESSON.md](LESSON.md) | The full lesson, step by step |
+| [example/](example/) | Small demos: a logging filter, a timing filter, a blocking filter with an init parameter, two filters in a chain |
+| [project/](project/) | **Members-Only Notice Board**: a login page, a filter that guards every page under `/members/`, and CRUD for notices |
+| [QUIZ.md](QUIZ.md) | More questions and tasks |
 
 Run any app with `cd example` (or `cd project`) then `mvn package cargo:run`.
+
+## How to build the project, step by step
+
+The project is a **Members-Only Notice Board** for teachers and prefects. Anyone can see the home page, but the
+notices under `/members/` need a login. **Three filters** do the jobs every request needs, so the servlets stay simple.
+
+| Feature | The user... | Request | Handled by |
+|---|---|---|---|
+| Log in | submits username and password | `GET` / `POST /login` | `LoginServlet` |
+| Log out | clicks "Log out" | `POST /logout` | `LogoutServlet` |
+| **Read** | opens the board | `GET /members/notices` | `NoticeListServlet` |
+| **Create** | posts a new notice | `GET` / `POST /members/notices/add` | `AddNoticeServlet` |
+| **Update** | edits a notice | `GET /members/notices/edit?id=2`, `POST .../edit` | `EditNoticeServlet` |
+| **Delete** | clicks Delete | `POST /members/notices/delete` | `DeleteNoticeServlet` |
+| *(every request)* | | `/*` | `EncodingFilter`, `AccessLogFilter` |
+| *(every members' page)* | | `/members/*` | `AuthFilter`: no login → redirect to `/login` |
+
+🏫 The school gate: `AuthFilter` is the **guard**, the session's `"user"` attribute is the **ID card**, and
+`LoginServlet` is the **office** that hands out ID cards.
+
+### The files, and whether each is needed
+
+| File | Needed? | Why |
+|---|---|---|
+| `pom.xml` | ✅ **Yes** | Builds and runs the app |
+| `Accounts.java` | ✅ **Yes** | Who may log in (2 members, kept in code for now) |
+| `Notice.java`, `NoticeStore.java` | ✅ **Yes** | The data, and the storage with CRUD and validation |
+| `Page.java` | ✅ **Yes** | The layout (menu, the member's name, Log out button) and the notice form |
+| `AuthFilter.java` | ✅ **Yes** | **The guard.** Without it, `/members/` is open to everyone |
+| `EncodingFilter.java` | ✅ **Yes** | Reads forms as UTF-8, so names like "Adébáyọ̀" survive. Replaces `setCharacterEncoding` in every servlet |
+| `AccessLogFilter.java` | ⚪ Optional | Logs every request in the terminal. Nice for learning and debugging |
+| `LoginServlet`, `LogoutServlet` | ✅ **Yes** | Give out and take back the "ID card" |
+| The 4 notice servlets | ✅ **Yes** | The CRUD. Notice that none of them checks the login |
+| `WEB-INF/web.xml` | ⚪ Optional | Only the session timeout (20 minutes) and the welcome file. Every filter and servlet uses an annotation |
+| `index.html`, `css/style.css` | ⚪ Optional | Public home page, and the look |
+
+### Step 1: `pom.xml`
+
+Copy it from the template and set `<artifactId>topic07-project</artifactId>`.
+
+### Step 2: `Accounts.java`
+
+A `Map` from username to `{password, full name}` (`teacher`/`teach123` → "Mrs. Bello", `prefect`/`prefect123` →
+"Head Prefect"). One method, `check(username, password)`, returns the full name or `null`.
+⚠️ Plain passwords in code are only for learning. Topic 13 shows how to store passwords safely.
+
+### Step 3: `Notice.java` and `NoticeStore.java`
+
+`Notice` has `final` fields `id`, `title`, `body`, `author`, and `posted` (a `LocalDate`) with getters.
+
+| `NoticeStore` method | Purpose |
+|---|---|
+| `static from(app)` | The shared store in the `ServletContext`, made with 2 sample notices the first time |
+| `add(title, body, author)` | **Create**, with today's date |
+| `findAll()` | **Read**, newest first. `findById(id)` for one |
+| `update(id, title, body)` | **Update**: keeps the original author and date |
+| `delete(id)` | **Delete** |
+| `static validate(title, body)` | Title required (max 80), text required (max 1000) |
+
+### Step 4: `Page.java`
+
+| Method | Purpose |
+|---|---|
+| `user(request)` | The logged-in name from the session, or `null`. Uses `getSession(false)` |
+| `page(request, title, content)` | The layout. Shows "Log in", or the menu, "👤 name", and a **Log out** button (a POST form) |
+| `form(request, action, id, title, body, errors, button)` | The Add/Edit form with a red error list. `id` is `null` for Add |
+| `escape(text)` | Safe HTML |
+
+### Step 5: `EncodingFilter` (`@WebFilter("/*")`)
+
+`doFilter`: `req.setCharacterEncoding("UTF-8")`, then `chain.doFilter(req, res)`. Two lines.
+
+### Step 6: `LoginServlet` (`/login`) and `LogoutServlet` (`/logout`)
+
+- `LoginServlet.doGet` shows the form (plus "Please log in" or "You have logged out" for `?msg=`).
+- `doPost` calls `Accounts.check`. Wrong → status **401** and the form again (keep the username, never the password).
+  Right → `request.getSession()`, `request.changeSessionId()` (a fresh ID after login, explained in topic 13),
+  `session.setAttribute("user", name)`, and redirect to `/members/notices`.
+- `LogoutServlet.doPost`: `getSession(false)`, `invalidate()`, redirect to `/login?msg=logged-out`.
+
+### Step 7: `AuthFilter` (`@WebFilter("/members/*")`), the guard
+
+`if (Page.user(request) == null)` → `sendRedirect(".../login?msg=login-required")` and `return` (**no** `chain.doFilter`).
+Otherwise set `Cache-Control: no-store` and call `chain.doFilter`.
+
+✅ **Check (before any notice servlet exists):** log out and open `/members/notices` → you land on the login page.
+Log in → you get a 404 (the guard let you in, but there is no servlet yet). The gate works.
+
+### Step 8: `NoticeListServlet` (`/members/notices`), Read
+
+Show the notices as cards (`<div class="cards">`), each with **Edit** (`edit?id=N`) and **Delete** (a POST form with a hidden id).
+Show a fixed green message for `?msg=added|updated|deleted`.
+
+✅ **Check:** after login you see "Library hours" and "Inter-house sports".
+
+### Step 9: `AddNoticeServlet` (`/members/notices/add`), Create
+
+`doGet`: empty form. `doPost`: trim, `validate` (400 + form if wrong), `add(title, body, Page.user(request))`,
+redirect with `msg=added`. No `setCharacterEncoding`: the filter did it.
+
+### Step 10: `EditNoticeServlet` (`/members/notices/edit`), Update
+
+A private `find(request, response)` reads `id` and sends **400** (not a number) or **404** (no such notice).
+`doGet` shows the filled form; `doPost` validates and calls `update`.
+
+### Step 11: `DeleteNoticeServlet` (`/members/notices/delete`), Delete
+
+`doPost` only: 400 / 404 as above, then `delete` and redirect with `msg=deleted`.
+
+### Step 12: `AccessLogFilter`, `web.xml`, `index.html`, `style.css`
+
+`AccessLogFilter` measures the time around `chain.doFilter` and then prints method, URI, `response.getStatus()`, and
+the user. Add the 20-minute session timeout, the welcome page, and the stylesheet.
+
+✅ **Final check:** watch the terminal while you log in, add, edit, delete, and log out. Every request has an
+`[ACCESS]` line. After logging out, every `/members/` URL sends you back to the login page.
 
 ## Check your understanding: 10 basic questions
 

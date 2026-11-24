@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Async demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">⏳ Async demos</a></header>
+<main>
+    <h1>Slow jobs without blocking the server</h1>
+    <p>Each demo takes a few seconds. Keep an eye on the terminal where Tomcat runs.</p>
+    <ul class="demos">
+        <li><a href="blocking">1. Blocking servlet</a>: a request thread waits 3 seconds doing nothing</li>
+        <li><a href="async">2. Async servlet</a>: the same job on a worker thread; the request thread is free at once</li>
+        <li><a href="timeout">3. Timeout</a>: the job takes 5 s but we only wait 2 s; an <code>AsyncListener</code> answers</li>
+        <li><a href="async-dispatch">4. Async + dispatch</a>: the worker hands the result to a JSP</li>
+    </ul>
+    <p class="note">The page looks the same to the user in demos 1 and 2: they still wait 3 seconds.
+        The difference is <b>inside the server</b>: in demo 2, Tomcat's thread serves other people while the job runs.</p>
+</main>
+</body>
+</html>

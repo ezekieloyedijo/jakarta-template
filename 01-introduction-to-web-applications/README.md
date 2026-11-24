@@ -65,6 +65,63 @@ Each step leads to the next one.
 > There's no Maven in this topic, only plain Java. `java SomeFile.java` compiles and runs a single file in one go (Java 11+).
 > Open <http://localhost:8080/> after starting either one. Stop with **Ctrl + C**.
 
+## How to build the project, step by step
+
+The project is **one file**, [project/MiniWebApp.java](project/MiniWebApp.java). It has no `pom.xml`, `web.xml`,
+`index.html`, or `style.css`: plain Java has no web-app structure (that's what topic 03 is about).
+The little bit of styling sits in a `<style>` tag inside the `page()` method.
+
+Build it in this order. **Run the program after every step** with `java MiniWebApp.java` (stop it with Ctrl + C)
+so you always know which step broke something.
+
+### Step 1: The skeleton: start a server
+
+Create `MiniWebApp.java` with the class and the `main` method.
+
+| Method | Purpose |
+|---|---|
+| `main(String[] args)` | Creates the server on port 8080 (`HttpServer.create`), connects each URL path to a handler method (`createContext("/time", MiniWebApp::time)`), and starts the server (`server.start()`) |
+
+✅ Check: the terminal prints "Mini Web App running at...".
+
+### Step 2: The plumbing helpers
+
+Before any page can be sent, you need two helpers, because plain Java does nothing for you:
+
+| Method | Purpose |
+|---|---|
+| `page(title, content)` | Wraps any content in a full HTML page (`<html>`, `<head>`, `<body>`, a Home link). Every page looks the same and you never repeat the HTML skeleton |
+| `send(exchange, status, html)` | Turns the HTML into bytes, sets the `Content-Type` header, writes the **status code** and the body, and prints a log line. This is the "write the HTTP response by hand" job |
+
+### Step 3: The static home page
+
+| Method | Purpose |
+|---|---|
+| `home(exchange)` | Sends the same HTML to everyone: a link to `/time` and a form that goes to `/greet`. Because the path `/` also catches **every unknown path**, it first checks the path and sends a **404** page if it isn't exactly `/` |
+
+✅ Check: <http://localhost:8080/> shows the home page, and <http://localhost:8080/abc> shows the 404 page.
+
+### Step 4: The first dynamic page
+
+| Method | Purpose |
+|---|---|
+| `time(exchange)` | Reads the current time with `LocalTime.now()` and builds the page **at the moment of the request**, so it changes every time you refresh |
+
+✅ Check: open `/time` and refresh it a few times.
+
+### Step 5: A dynamic page that uses the user's input
+
+| Method | Purpose |
+|---|---|
+| `getParameter(query, key)` | Finds one value in a query string like `name=Amaka%20Obi`: splits it at `&` and `=`, then decodes `%20` into a space. (Jakarta does this for you from topic 02 on) |
+| `escape(text)` | Replaces `&`, `<`, `>` with safe codes, so a name like `<b>Bob</b>` is shown as text and can't change the page (topic 13) |
+| `greet(exchange)` | Reads `name` from the URL. Missing or blank: sends **400 Bad Request**. Otherwise: sends "Hello, *name*!" |
+
+✅ Check: type your name in the home page form. Then open `/greet` with no name and see the 400 page.
+
+**Lesson to notice:** half of this file is plumbing (`send`, `getParameter`, the path check in `home`).
+In topic 02 the Jakarta container does all of it, and these methods disappear.
+
 ## Check your understanding: 10 basic questions
 
 Try to answer each question out loud or on paper **before** you open the answer.

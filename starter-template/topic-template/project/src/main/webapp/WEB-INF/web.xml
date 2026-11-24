@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   The deployment descriptor: this app's settings for the server.
-  It can stay empty like this. Add welcome files, error pages, and context-params here when a lesson needs them.
+  Every servlet is registered here with TWO entries:
+    <servlet>         = WHO:   a nickname for a Java class
+    <servlet-mapping> = WHERE: which URL goes to that nickname
+  Add welcome files, error pages, and context-params here when a lesson needs them.
+  (From topic 05 onward you may use the @WebServlet("/hello") shortcut on the class instead.)
 -->
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 
+    <servlet>
+        <servlet-name>hello</servlet-name>
+        <servlet-class>com.school.project.HelloServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>hello</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
 </web-app>

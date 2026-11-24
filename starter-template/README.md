@@ -139,9 +139,27 @@ Then create these three files (copy them from the matching places in [topic-temp
 |---|---|
 | `src/main/webapp/index.html` | The home page. Everything in `webapp/` is **public**: browsers can request it |
 | `src/main/webapp/css/style.css` | The stylesheet (optional, but it makes pages readable) |
-| `src/main/webapp/WEB-INF/web.xml` | The app's settings. `WEB-INF` is **private**: browsers can never open it |
+| `src/main/webapp/WEB-INF/web.xml` | The app's settings, including **which URL goes to which servlet**. `WEB-INF` is **private**: browsers can never open it |
 
 🏫 **Say:** "`webapp` is the shop floor customers can walk around. `WEB-INF` is the locked store-room, staff only."
+
+Open `web.xml` and point at the two entries that connect `/hello` to `HelloServlet`:
+
+```xml
+<servlet>                                    <!-- WHO: a nickname for the class -->
+    <servlet-name>hello</servlet-name>
+    <servlet-class>com.school.example.HelloServlet</servlet-class>
+</servlet>
+<servlet-mapping>                            <!-- WHERE: which URL goes to that nickname -->
+    <servlet-name>hello</servlet-name>
+    <url-pattern>/hello</url-pattern>
+</servlet-mapping>
+```
+
+🏫 **Say:** "Tomcat doesn't search for our classes. It reads this list. A servlet that isn't on the list can't be reached."
+
+> In **project/** the class is `com.school.project.HelloServlet`. Every new servlet in topics 02–04 needs its own
+> pair of entries here. From topic 05 we'll learn the `@WebServlet("/hello")` shortcut that replaces them.
 
 ### Step 7: Run it
 
@@ -205,6 +223,8 @@ Now add the lesson's servlets and pages next to `HelloServlet.java` and `index.h
 |---|---|---|
 | `Non-resolvable parent POM` | The app isn't exactly two folders below the parent `pom.xml`, or the parent `pom.xml` is missing | Keep the shape `course/topic/app/pom.xml`, or fix `<relativePath>` |
 | `class HelloServlet is public, should be declared in a file named...` | File name and class name differ | Rename the file or the class so they match |
-| Servlet gives **404** | Wrong folder or `package` line, or a different URL in `@WebServlet("/...")` | Check that the `package` matches the folders, and check the URL |
+| Servlet gives **404** | The servlet is missing from `web.xml`, or its `<url-pattern>` is different from the URL you typed | Add both `<servlet>` and `<servlet-mapping>`, check the URL, and restart |
+| App **fails to start**, or **500** with `ClassNotFoundException` | `<servlet-class>` doesn't match the real class: a typo, or the `package` line doesn't match the folders | Use the full name, e.g. `com.school.example.HelloServlet`, and check the `package` line |
+| App fails to start: "unknown servlet name" | The `<servlet-name>` in `<servlet-mapping>` is spelled differently from the one in `<servlet>` | Make the two names identical |
 | `Port 8080 is in use` | Another app is still running | Ctrl+C in the other terminal, or `mvn package cargo:run -Dtomcat.port=9090` |
 | Change doesn't appear | Tomcat is still running the old WAR | Ctrl+C, then `mvn package cargo:run` again |

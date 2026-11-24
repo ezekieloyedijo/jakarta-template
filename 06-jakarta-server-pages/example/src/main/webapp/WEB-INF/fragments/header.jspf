@@ -1,0 +1,15 @@
+<%-- A FRAGMENT (.jspf): not a full page, only the top part of one.
+     Pages paste it in with:  <%@ include file="/WEB-INF/fragments/header.jspf" %>
+     It uses the variable "title", which each page creates BEFORE the include line. --%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | JSP demos</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+</head>
+<body>
+<header><a class="brand" href="<%= request.getContextPath() %>/">📄 JSP demos</a></header>
+<main>
+    <h1><%= title %></h1>

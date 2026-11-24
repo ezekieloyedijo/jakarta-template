@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>School Shop</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <a class="brand" href="./">🛒 School Shop</a>
+    <nav>
+        <a href="shop">Products</a>
+        <a href="cart">My cart</a>
+    </nav>
+</header>
+<main>
+    <h1>Welcome to the School Shop</h1>
+    <p>Buy uniforms, bags, and books. Your cart is remembered while you move between pages.</p>
+
+    <div class="tiles">
+        <a class="tile" href="shop"><b>🏷️ Products</b><span>See everything we sell</span></a>
+        <a class="tile" href="cart"><b>🛒 My cart</b><span>Change quantities or remove items</span></a>
+    </div>
+
+    <p class="note">The cart is stored in your <b>HttpSession</b> on the server. Your browser only keeps the
+        session ID in a cookie called <code>JSESSIONID</code>. Open a private window and you get a different, empty cart.</p>
+</main>
+</body>
+</html>

@@ -1,7 +1,6 @@
 package com.school.example;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,7 @@ import java.io.IOException;
  * Reads APP-WIDE settings (<context-param>) from web.xml.
  * Change the values in web.xml, restart, and the page changes. No Java change needed.
  */
-@WebServlet("/settings")
+// Registered in WEB-INF/web.xml: <servlet> + <servlet-mapping> with the URL "/settings"
 public class SettingsServlet extends HttpServlet {
 
     @Override

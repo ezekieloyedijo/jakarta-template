@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Database and Listener demos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><a class="brand" href="./">🗄️ Database and Listener demos</a></header>
+<main>
+    <h1>Talking to a database, and reacting to events</h1>
+    <ul class="demos">
+        <li><a href="connect">1. Connect</a>: open a JDBC connection and ask the database who it is</li>
+        <li><a href="fruits">2. Read and insert rows</a>: <code>SELECT</code> with a ResultSet, <code>INSERT</code> with a PreparedStatement</li>
+        <li><a href="online">3. Visitors online</a>: an <code>HttpSessionListener</code> counts the open sessions</li>
+    </ul>
+    <p class="note">The table <code>fruit</code> was created by <code>StartupListener</code> when the app started,
+        before anyone opened a page. Look for <code>[STARTUP]</code> in the terminal.
+        This demo database lives in memory, so it starts fresh every time Tomcat starts.</p>
+</main>
+</body>
+</html>

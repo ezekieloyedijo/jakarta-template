@@ -52,6 +52,93 @@ You should be able to explain:
 
 > ⚙️ From this topic on you need **Maven**. Read [SETUP.md](../SETUP.md) first if you haven't.
 
+## How to build the project, step by step
+
+The project is topic 01's Mini Web App, rebuilt with Jakarta. These are all its files and whether each is needed:
+
+| File | Needed? | Why |
+|---|---|---|
+| `pom.xml` | ✅ **Yes** | Without it Maven can't build or run the app |
+| `src/main/webapp/index.html` | ✅ **Yes** | It *is* the home page. Without it, `http://localhost:8080/` gives a 404 |
+| `Page.java` | ✅ **Yes** | Both servlets call it to build their pages |
+| `TimeServlet.java`, `GreetServlet.java` | ✅ **Yes** | The two dynamic pages |
+| `src/main/webapp/WEB-INF/web.xml` | ✅ **Yes** | It tells Tomcat which URL goes to which servlet (`/time` → `TimeServlet`, `/greet` → `GreetServlet`). A servlet that isn't listed here can never be reached: 404 |
+| `src/main/webapp/css/style.css` | ⚪ Optional | Only makes the pages look nice. Without it everything still works, just plain |
+
+(`index.html` needs no entry in `web.xml`: Tomcat shows it for `/` automatically.)
+
+Build it in this order. After each step, **run** it with `mvn package cargo:run`, check it in the browser,
+and stop it with Ctrl + C.
+
+### Step 1: `pom.xml`, the app's identity card
+
+Copy it from the template and set `<artifactId>topic02-project</artifactId>`. It says
+"my parent is `../../pom.xml`" (Java 17, the Jakarta libraries, Tomcat) and "package me as a WAR".
+
+### Step 2: `index.html`, the static home page
+
+A plain HTML file in `src/main/webapp/`. It has a link to `time` and a form with `action="greet"` and `method="get"`.
+It contains **no Java**: Tomcat sends the file as it is.
+
+✅ Check: <http://localhost:8080/> shows the page. The links don't work yet (404), which is expected.
+
+### Step 3: `css/style.css` (optional)
+
+Copy the shared stylesheet into `src/main/webapp/css/`. `index.html` and `Page.wrap()` link to it with
+`<link rel="stylesheet" href="css/style.css">`.
+
+### Step 4: `Page.java`, the layout helper
+
+A plain Java class (no Jakarta in it) with two static methods, written **before** the servlets because both use it:
+
+| Method | Purpose |
+|---|---|
+| `wrap(title, content)` | Puts the title and content into a full HTML page with the stylesheet link and a Home link, so every page has the same layout |
+| `escape(text)` | Makes user-typed text safe inside HTML by replacing `& < > "` (topic 13) |
+
+The `private Page() {}` constructor stops anyone from creating `new Page()`. It is only a box of helper methods.
+
+### Step 5: `TimeServlet.java`, the first servlet
+
+The class `extends HttpServlet`.
+
+| Method | Purpose |
+|---|---|
+| `doGet(request, response)` | Tomcat calls it for every GET to `/time`. It reads the current time, sets the content type to HTML (`setContentType`), and writes `Page.wrap(...)` to `response.getWriter()` |
+
+### Step 6: `WEB-INF/web.xml`, tell Tomcat about the servlet
+
+Create `src/main/webapp/WEB-INF/web.xml` and register `TimeServlet` with **two** entries:
+
+```xml
+<servlet>                                   <!-- WHO: a nickname for the class -->
+    <servlet-name>time</servlet-name>
+    <servlet-class>com.school.project.TimeServlet</servlet-class>
+</servlet>
+<servlet-mapping>                           <!-- WHERE: which URL goes to that nickname -->
+    <servlet-name>time</servlet-name>
+    <url-pattern>/time</url-pattern>
+</servlet-mapping>
+```
+
+The `<servlet-name>` must be **the same** in both entries, because that is how they are joined together.
+`<servlet-class>` is the **full** class name, with the package.
+
+✅ Check: the "What time is it?" link works. Refresh it and the time changes.
+(Try removing the `<servlet-mapping>` and restarting: `/time` gives a 404. Put it back.)
+
+### Step 7: `GreetServlet.java`, input from the user, and its web.xml entries
+
+| Method | Purpose |
+|---|---|
+| `doGet(request, response)` | Reads the name with `request.getParameter("name")` (already decoded by Tomcat). If it's missing or blank, it sets status **400** with `setStatus(400)` and shows an error page. Otherwise it shows "Hello, *name*!" using `Page.escape(name)` |
+
+Then add a second `<servlet>` + `<servlet-mapping>` pair to `web.xml`: nickname `greet`, class `com.school.project.GreetServlet`, URL `/greet`.
+
+✅ Check: submit the form, then open <http://localhost:8080/greet> with no name and see the 400 page.
+
+**Compare with topic 01:** `getParameter()`, `send()`, and the 404 path check are gone. Tomcat does them.
+
 ## Check your understanding: 10 basic questions
 
 Try to answer each question out loud or on paper **before** you open the answer.
@@ -92,6 +179,6 @@ Try to answer each question out loud or on paper **before** you open the answer.
 
 <details><summary>Answer</summary>"We need these to <b>compile</b>, but don't pack them into the WAR, because the <b>server (Tomcat) already provides them</b> when the app runs."</details>
 
-**10.** What does the annotation `@WebServlet("/hello")` do?
+**10.** Which two entries in `web.xml` connect the URL `/hello` to the class `HelloServlet`, and what does each one say?
 
-<details><summary>Answer</summary>It tells the container: "when a request arrives for the URL <code>/hello</code>, send it to <b>this servlet class</b>."</details>
+<details><summary>Answer</summary><code>&lt;servlet&gt;</code> says <b>WHO</b>: it gives the class <code>com.school.example.HelloServlet</code> a nickname, for example <code>hello</code>. <code>&lt;servlet-mapping&gt;</code> says <b>WHERE</b>: requests for the URL <code>/hello</code> go to the nickname <code>hello</code>. Without both, the URL gives a 404.</details>

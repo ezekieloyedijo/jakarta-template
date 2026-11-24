@@ -23,9 +23,9 @@ a) the root  b) `WEB-INF/lib`  c) `WEB-INF/classes`  d) `META-INF`
 
 <details><summary>Answer</summary><code>/shop</code>, so the app lives at <code>http://localhost:8080/shop/</code>. (<code>ROOT.war</code> would be <code>/</code>.)</details>
 
-**6.** A servlet has `@WebServlet("/a")`, and `web.xml` maps the same servlet to `/b`. Which wins?
+**6.** You wrote a `<servlet>` entry for `ReportServlet` in `web.xml` but forgot its `<servlet-mapping>`. What happens when you visit `/report`?
 
-<details><summary>Answer</summary><code>web.xml</code> wins when it configures the same servlet.</details>
+<details><summary>Answer</summary>A <b>404</b>. The container knows the servlet exists (the <code>&lt;servlet&gt;</code> entry), but no URL leads to it, because only <code>&lt;servlet-mapping&gt;</code> connects a URL to a servlet.</details>
 
 **7.** Which command builds the WAR? Which runs the app for development?
 

@@ -1,0 +1,20 @@
+<%-- The top of every page. The page must create the variable "title" before including this file. --%>
+<%@ page import="com.school.project.GradeBook" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= GradeBook.escape(title) %> | Grade Book</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <a class="brand" href="index.jsp">📒 Grade Book</a>
+    <nav>
+        <a href="index.jsp">My subjects</a>
+        <a href="add.jsp">Add subject</a>
+    </nav>
+</header>
+<main>
+    <h1><%= GradeBook.escape(title) %></h1>

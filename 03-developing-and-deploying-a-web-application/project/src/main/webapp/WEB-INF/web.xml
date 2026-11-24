@@ -25,6 +25,44 @@
         <param-value>ada@example.com</param-value>
     </context-param>
 
+    <!-- ===== The servlets: <servlet> = WHO (nickname + class), <servlet-mapping> = WHERE (URL) ===== -->
+    <servlet>
+        <servlet-name>home</servlet-name>
+        <servlet-class>com.school.project.HomeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>home</servlet-name>
+        <!-- an EMPTY pattern means exactly the root of the app: http://localhost:8080/ -->
+        <url-pattern></url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>about</servlet-name>
+        <servlet-class>com.school.project.AboutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>about</servlet-name>
+        <url-pattern>/about</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>projects</servlet-name>
+        <servlet-class>com.school.project.ProjectsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>projects</servlet-name>
+        <url-pattern>/projects</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>contact</servlet-name>
+        <servlet-class>com.school.project.ContactServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>contact</servlet-name>
+        <url-pattern>/contact</url-pattern>
+    </servlet-mapping>
+
     <!-- ===== Friendly error pages ===== -->
     <error-page>
         <error-code>404</error-code>

@@ -1,6 +1,5 @@
 package com.school.example;
 
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * WATCH THE TERMINAL while using this servlet.
  *
- *  - init()    is printed ONCE, when the app starts (because loadOnStartup = 1)
+ *  - init()    is printed ONCE, when the app starts (because of <load-on-startup>1</load-on-startup> in web.xml)
  *  - doGet()   is printed EVERY time you open /lifecycle
  *  - destroy() is printed ONCE, when you stop the server with Ctrl + C
  */
-@WebServlet(urlPatterns = "/lifecycle", loadOnStartup = 1)
+// Registered in WEB-INF/web.xml with the URL "/lifecycle" and <load-on-startup>1</load-on-startup>
 public class LifecycleServlet extends HttpServlet {
 
     // A field is SHARED by all requests (there is only ONE servlet object).
